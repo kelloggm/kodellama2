@@ -1,0 +1,4 @@
+# Ignore coq compile files
+*.vo
+*.glob
+*.v.d

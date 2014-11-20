@@ -3,9 +3,12 @@
 
 Module Aexp.
 
-Inductive Aexp :=
+Inductive AexpLit :=
   (* Lit has sign, numerator, and denominator *)
-  | Lit: bool -> nat -> nat -> Aexp
+  | mk_aexp_lit : bool -> nat -> nat -> AexpLit.
+
+Inductive Aexp :=
+  | Lit: AexpLit -> Aexp
   | Plus : Aexp -> Aexp -> Aexp
   | Minus : Aexp -> Aexp -> Aexp
   | Mult : Aexp -> Aexp -> Aexp

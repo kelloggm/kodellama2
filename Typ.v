@@ -8,3 +8,5 @@ Inductive typ :=
   | aexplit : AexpLit -> typ.
 
 End Typ.
+
+Export Typ.

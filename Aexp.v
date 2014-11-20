@@ -18,3 +18,5 @@ Inductive Aexp :=
 
 
 End Aexp.
+
+Export Aexp.

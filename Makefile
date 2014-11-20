@@ -1,9 +1,11 @@
+.SUFFIXES: .v .vo
+
 all: kodellama
 
-kodellama: Aexp.vo
+kodellama: Aexp.vo Typ.vo Sigma.vo
 
-Aexp.vo: Aexp.v
-	coqc Aexp.v
+.v.vo:
+	coqc $<
 
 clean:
 	rm -rf *.vo

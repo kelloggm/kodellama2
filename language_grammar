@@ -1,0 +1,82 @@
+available constructs with unit ("nothing" is the only value of unit) type:
+
+	  b : bool, c1 : T
+	  while b do c1 end
+	  
+	  x : int, c1 : T
+	  repeat x times: c1 end
+
+	  either sigma(v) has type T or sigma(v) is undefined; e : T
+	  set v to e // v is mutable
+	  let v always be e // v is immutable
+	  //note: a if you let a variable, attempting to set it in the same scope will be an error.
+
+	  skip
+	  
+	  v : T
+	  print v
+	  // we, on our end, do the pretty printing as well as we can. Perhaps we can have a special function that can be overwritten in thing?
+
+
+With type T:
+
+     	  b : bool, c1 : T, c2 : T
+	  if b then c1 else c2 end
+
+	  a : A, b1...bn : A, c1...cn : T
+	  match a with
+	  	b1 then c1 end
+		...
+		bn then cn end
+	  end  
+	  
+ALL TYPES ARE BOXED
+
+    the type system has "thing" as its top and "unit" as its bottom
+    every value is of type thing
+    the only value of unit is nothing
+
+builtin types
+
+	bool : true | false
+	not, and, or predefined
+
+	number : BigInt denominator, BigInt numerator means users never see integer arithmetic and never overflow
+	0
+	1
+	-6
+	8.5
+	2.35
+	5/12
+	math.pi (not quite...)
+	^ a math library, generally, as well
+	number operators: + - * / ^ (^ is exponentiation - screw you Ritchie)
+	math.squareroot n -> n
+	math.nthroot n -> n -> n
+	math.distance point -> point -> n
+	math.point (a pair of numbers)?
+	math.e
+	math.log n -> n -> n
+	math.ln n -> n
+	etc
+
+	string : under the hood an array of characters/just a string
+	""
+	"hello, world"
+	"quotes aren't allowed in strings"
+	"but I said, 'this is totally allowed'"
+	"5"
+	
+	string operators : + (concatenation)
+	
+	string.length str -> n
+	string.concatenate str -> str -> str
+	string.substring str -> n -> n -> str
+	string.contains str -> str -> bool
+	etc
+
+	lists : they do list things
+	
+	[1,2,3]
+	[true, false]
+	

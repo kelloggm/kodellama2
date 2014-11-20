@@ -1,0 +1,54 @@
+to method1
+   let local be 2
+   if local is 2 then
+	set local to 5
+   else
+	set local to 2.
+   return local
+end
+
+make a list like a thing but
+     let head be nothing
+     let tail be nothing
+
+     to build hd tl
+     	set head to hd
+	set tail to tl
+     end
+     
+     let nil be build nothing nothing
+end
+
+let [] be list.nil
+
+make a subclass like a superclass but
+
+     let variable be 5
+
+     to method2 x
+     	if x is "Banana" then
+    	   return method1
+	else
+	   return 3.
+     end
+     
+     to method3 y
+     	 repeat y times: set variable to variable + 1.
+	 return y
+     end
+
+     to method4 z
+     	set r to "a"
+     	while z is true do
+	       set r to r + "b".
+	return r
+     end
+
+     to method5 lst item
+     	x := 5 
+     	match lst with
+	      [] then false end
+	      head :: tail then if head is item then true else method5 tail item end end
+     end
+	       
+end

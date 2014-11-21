@@ -3,21 +3,41 @@
 
 Module Aexp.
 
+Require Export QArith.
+
 Inductive AexpLit :=
   (* Lit has sign, numerator, and denominator *)
-  | mk_aexp_lit : bool -> nat -> nat -> AexpLit.
+  | mk_aexp_lit : Q -> AexpLit.
 
-Definition plus_aexplit (a b : AexpLit) := mk_aexp_lit false 0 1.
+SearchAbout Q.
 
-Definition minus_aexplit (a b : AexpLit) := mk_aexp_lit false 0 1.
+Definition plus_aexplit (a b : AexpLit) := 
+  match a, b with
+    | mk_aexp_lit q, mk_aexp_lit p => mk_aexp_lit (Qplus q p)
+  end.
 
-Definition mult_aexplit (a b : AexpLit) := mk_aexp_lit false 0 1.
+Definition minus_aexplit (a b : AexpLit) :=  
+  match a, b with
+    | mk_aexp_lit q, mk_aexp_lit p => mk_aexp_lit (Qminus q p)
+  end.
 
-Definition div_aexplit (a b : AexpLit) := mk_aexp_lit false 0 1.
+Definition mult_aexplit (a b : AexpLit) := 
+ match a, b with
+    | mk_aexp_lit q, mk_aexp_lit p => mk_aexp_lit (Qmult q p)
+  end.
 
-Definition exp_aexplit (a b : AexpLit) := mk_aexp_lit false 0 1.
+Definition div_aexplit (a b : AexpLit) := 
+ match a, b with
+    | mk_aexp_lit q, mk_aexp_lit p => 
+       if Qeq_bool p (Qmake 0 1) then mk_aexp_lit (Qmake 0 1) else mk_aexp_lit (Qdiv q p)
+  end.
 
-Definition neg_aexplit (a : AexpLit) := mk_aexp_lit false 0 1.
+Definition exp_aexplit (a b : AexpLit) := mk_aexp_lit (Qmake 1 1). (* exponentiation...seems hard. We'll get to it later *)
+
+Definition neg_aexplit (a : AexpLit) := 
+  match a with
+    | mk_aexp_lit q => mk_aexp_lit (Qinv q)
+  end.
 
 Inductive Aexp :=
   | Lit: AexpLit -> Aexp

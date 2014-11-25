@@ -9,8 +9,6 @@ Inductive AexpLit :=
   (* Lit has sign, numerator, and denominator *)
   | mk_aexp_lit : Q -> AexpLit.
 
-SearchAbout Q.
-
 Definition plus_aexplit (a b : AexpLit) := 
   match a, b with
     | mk_aexp_lit q, mk_aexp_lit p => mk_aexp_lit (Qplus q p)

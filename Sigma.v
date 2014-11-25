@@ -19,7 +19,10 @@ Definition beq_id (i1 i2 : id) : bool :=
 Definition state := id -> typ.
 
 Definition update (sigma : state) (i : id) (t : typ) : state :=
-  fun i' => if beq_id i i' then t else sigma i'.
+  fun i' => if beq_id i i' 
+    then match (sigma i) with
+      | mk_typ b _ => if b then (sigma i) else t end  
+    else sigma i'.
 
 End Sigma.
 

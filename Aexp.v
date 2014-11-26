@@ -4,6 +4,7 @@
 Module Aexp.
 
 Require Export QArith.
+Require Export Ident.
 
 Inductive AexpLit :=
   (* Lit has sign, numerator, and denominator *)
@@ -37,25 +38,17 @@ Definition neg_aexplit (a : AexpLit) :=
     | mk_aexp_lit q => mk_aexp_lit (Qinv q)
   end.
 
-Inductive Aexp :=
-  | Lit: AexpLit -> Aexp
-  | Plus : Aexp -> Aexp -> Aexp
-  | Minus : Aexp -> Aexp -> Aexp
-  | Mult : Aexp -> Aexp -> Aexp
-  | Div : Aexp -> Aexp -> Aexp
-  | Exp : Aexp -> Aexp -> Aexp
-  | Neg : Aexp -> Aexp.
+Definition aexplit_zero := mk_aexp_lit (Qmake 0 1).
 
-Fixpoint eval_aexp (a : Aexp) :=
-  match a with
-    | Lit a' => a'
-    | Plus b c => plus_aexplit (eval_aexp b) (eval_aexp c)
-    | Minus b c => minus_aexplit (eval_aexp b) (eval_aexp c)
-    | Mult b c => mult_aexplit (eval_aexp b) (eval_aexp c)
-    | Div b c => div_aexplit (eval_aexp b) (eval_aexp c)
-    | Exp b c => exp_aexplit (eval_aexp b) (eval_aexp c)
-    | Neg b => neg_aexplit (eval_aexp b)
-  end.
+Inductive Aexp :=
+  | ALit: AexpLit -> Aexp
+  | AVar: ident -> Aexp
+  | APlus : Aexp -> Aexp -> Aexp
+  | AMinus : Aexp -> Aexp -> Aexp
+  | AMult : Aexp -> Aexp -> Aexp
+  | ADiv : Aexp -> Aexp -> Aexp
+  | AExp : Aexp -> Aexp -> Aexp
+  | ANeg : Aexp -> Aexp.
 
 End Aexp.
 

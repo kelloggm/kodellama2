@@ -4,6 +4,7 @@ Require Export Typ.
 Require Export Sigma.
 Require Export Aexp.
 Require Export Bexp.
+Require Export Commands.
 
 Module Eval.
 
@@ -46,6 +47,44 @@ Proof. compute; reflexivity. Qed.
 Example f1_eval: eval_bexp f1_expr = false.
 Proof. compute; reflexivity. Qed.
 *)
+
+(** Inner function for eval_command. It uses a counter n to avoid infinite loops *)
+Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
+  match n with
+    | O => sigma
+    | S n' => 
+      match cmd with
+        | CWhile b c =>
+          if eval_bexp b sigma then
+            let s' := eval_command_inner c sigma n' in
+              eval_command_inner cmd s' n'
+          else sigma
+        | CRepeat a c =>
+          let a' := eval_aexp a sigma in
+            match a' with
+              | mk_aexp_lit (Qmake 0 1) => sigma
+              | mk_aexp_lit (Qmake z 1) =>
+                let s' := eval_command_inner c sigma n' in
+                  eval_command_inner (CRepeat (ALit (mk_aexp_lit (Qmake (z-1) 1))) c) s' n'
+              | _ => sigma (* TODO: Error, repeating on a decimal *)
+            end
+        | CSet i t => update sigma i t
+        | CLet i t => update sigma i t
+        | CSkip => sigma
+        | CPrint i => sigma (* TODO *)
+        | CIf b c1 c2 =>
+          match eval_bexp b sigma with
+            | true => eval_command_inner c1 sigma n'
+            | false => eval_command_inner c2 sigma n'
+          end
+        | CMatch i t_lst c_lst => sigma (* TODO *)
+        | CSeq c1 c2 => eval_command_inner c2 (eval_command_inner c1 sigma n') n'
+      end
+  end.
+
+Definition eval_command (cmd: Command) (sigma: state): state :=
+  eval_command_inner cmd sigma 5000.
+
 End Eval.
 
 Export Eval.

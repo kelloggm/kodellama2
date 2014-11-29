@@ -87,7 +87,9 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                   match t_h with
                     | mk_typ _ ti =>
                       match ti with
+                        (* Add new types here *)
                         | aexplit (mk_aexp_lit qmatch) =>
+                          (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_aexp (AVar i) sigma in
                             match ival with
                               | mk_aexp_lit qval =>
@@ -97,6 +99,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                                   eval_command_inner (CMatch i t_t c_c) sigma n'
                             end
                         | bexplit lit =>
+                          (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_bexp (BVar i) sigma in
                             match ival, lit with
                               | true, true => eval_command_inner c_h sigma n'

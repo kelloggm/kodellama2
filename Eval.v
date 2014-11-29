@@ -77,7 +77,36 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
             | true => eval_command_inner c1 sigma n'
             | false => eval_command_inner c2 sigma n'
           end
-        | CMatch i t_lst c_lst => sigma (* TODO *)
+        | CMatch i t_lst c_lst =>
+          match t_lst with
+            | nil => sigma
+            | cons t_h t_t =>
+              match c_lst with
+                | nil => sigma
+                | cons c_h c_c => 
+                  match t_h with
+                    | mk_typ _ ti =>
+                      match ti with
+                        | aexplit (mk_aexp_lit qmatch) =>
+                          let ival := eval_aexp (AVar i) sigma in
+                            match ival with
+                              | mk_aexp_lit qval =>
+                                if Qeq_bool qval qmatch then
+                                  eval_command_inner c_h sigma n'
+                                else
+                                  eval_command_inner (CMatch i t_t c_c) sigma n'
+                            end
+                        | bexplit lit =>
+                          let ival := eval_bexp (BVar i) sigma in
+                            match ival, lit with
+                              | true, true => eval_command_inner c_h sigma n'
+                              | false, false => eval_command_inner c_h sigma n'
+                              | _, _ => eval_command_inner (CMatch i t_t c_c) sigma n'
+                            end
+                      end
+                  end
+              end
+          end
         | CSeq c1 c2 => eval_command_inner c2 (eval_command_inner c1 sigma n') n'
       end
   end.

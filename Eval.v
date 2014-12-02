@@ -17,13 +17,27 @@ Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
     | ADiv b c => div_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
     | AExp b c => exp_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
     | ANeg b => neg_aexplit (eval_aexp b sigma)
-    | AVar i => match (sigma i) with | mk_typ _ t => match t with | aexplit a' => a' | _ => aexplit_zero (*error!*) end end
+    | AVar i =>
+      match (sigma i) with
+        | mk_typ _ t =>
+          match t with
+            | aexplit a' => a'
+            | _ => aexplit_zero (*error!*)
+          end
+      end
   end.
 
 Fixpoint eval_bexp (b: Bexp) (sigma : state) : BexpLit :=
   match b with
     | BLit b' => b'
-    | BVar i => match (sigma i) with | mk_typ _ t => match t with | bexplit b' => b' | _ => false (* error! *) end end
+    | BVar i =>
+      match (sigma i) with
+        | mk_typ _ t =>
+          match t with
+            | bexplit b' => b'
+            | _ => false (* error! *)
+          end
+      end
     | BNot a => match eval_bexp a sigma with
         | true => false
         | false => true
@@ -83,7 +97,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
             | cons t_h t_t =>
               match c_lst with
                 | nil => sigma
-                | cons c_h c_c => 
+                | cons c_h c_t => 
                   match t_h with
                     | mk_typ _ ti =>
                       match ti with
@@ -96,7 +110,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                                 if Qeq_bool qval qmatch then
                                   eval_command_inner c_h sigma n'
                                 else
-                                  eval_command_inner (CMatch i t_t c_c) sigma n'
+                                  eval_command_inner (CMatch i t_t c_t) sigma n'
                             end
                         | bexplit lit =>
                           (* TODO: We need to check if the ident is that type first *)
@@ -104,7 +118,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                             match ival, lit with
                               | true, true => eval_command_inner c_h sigma n'
                               | false, false => eval_command_inner c_h sigma n'
-                              | _, _ => eval_command_inner (CMatch i t_t c_c) sigma n'
+                              | _, _ => eval_command_inner (CMatch i t_t c_t) sigma n'
                             end
                       end
                   end

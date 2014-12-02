@@ -111,7 +111,9 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                                   eval_command_inner c_h sigma n'
                                 else
                                   eval_command_inner (CMatch i t_t c_t) sigma n'
+      	       	       	      | aexp_error => sigma (*TODO: MJI: what are we doing when there is an error?*)
                             end
+                        | aexplit (aexp_error) => sigma (*TODO: MJI : xERROR OH NOES *)
                         | bexplit lit =>
                           (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_bexp (BVar i) sigma in

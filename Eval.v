@@ -4,6 +4,7 @@ Require Export Typ.
 Require Export Sigma.
 Require Export Aexp.
 Require Export Bexp.
+Require Export Exp.
 Require Export Commands.
 
 Module Eval.
@@ -22,7 +23,7 @@ Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
         | mk_typ _ t =>
           match t with
             | aexplit a' => a'
-            | _ => aexplit_zero (*error!*)
+            | _ => aexp_error (*error!*)
           end
       end
   end.
@@ -57,6 +58,40 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) : BexpLit :=
       end
   end.
 
+Definition eval_exp (e: Exp) (sigma: state) :=
+  match e with
+    | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
+    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma)
+  end.
+
+Definition aexplit_is_equal (e1 e2: AexpLit): BexpLit :=
+  match e1, e2 with
+    | aexp_error, _ => bexp_error
+    | _, aexp_error => bexp_error
+    | mk_aexp_lit q1, mk_aexp_lit q2 =>
+      if Qeq_bool q1 q2 then mk_bexp_lit true else mk_bexp_lit false
+  end.
+
+Definition aexp_is_equal (e1 e2: Aexp) (sigma: state): BexpLit :=
+  aexplit_is_equal (eval_aexp e1 sigma) (eval_aexp e2 sigma).
+
+Definition bexplit_is_equal (e1 e2: BexpLit): BexpLit :=
+  match e1, e2 with
+    | bexp_error, _ => bexp_error
+    | _, bexp_error => bexp_error
+    | mk_bexp_lit b1, mk_bexp_lit b2 => mk_bexp_lit (eqb b1 b2)
+  end.
+
+Definition bexp_is_equal (e1 e2: Bexp) (sigma: state): BexpLit :=
+  bexplit_is_equal (eval_bexp e1 sigma) (eval_bexp e2 sigma).
+
+Definition exp_is_equal (e1 e2: Exp) (sigma: state): BexpLit :=
+  match e1, e2 with
+    | EAexp a1, EAexp a2 => aexp_is_equal a1 a2 sigma
+    | EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma
+    | _, _ => bexp_error
+  end.
+
 (** Some tests for bexp eval *)
 (* I commented them out because who needs tests anyway - Martin *)
 (*Example t1_expr := Or (Lit false) (And (Not (Lit false)) (Lit true)).
@@ -70,7 +105,7 @@ Proof. compute; reflexivity. Qed.
 (** Inner function for eval_command. It uses a counter n to avoid infinite loops *)
 Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
   match n with
-    | O => sigma
+    | O => sigma (* TODO: Error, infinite loop or large program *)
     | S n' => 
       match cmd with
         | CWhile b c =>

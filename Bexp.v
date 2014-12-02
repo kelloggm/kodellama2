@@ -15,7 +15,7 @@ Inductive Bexp :=
   | BAnd: Bexp -> Bexp -> Bexp
   | BOr: Bexp -> Bexp -> Bexp
   | BVar : ident -> Bexp.
-  
+
 End Bexp.
 
 Export Bexp.

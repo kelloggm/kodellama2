@@ -5,7 +5,9 @@ Require Export Ident.
 
 Module Bexp.
 
-Definition BexpLit := bool.
+Inductive BexpLit :=
+  | mk_bexp_lit : bool -> BexpLit
+  | bexp_error : BexpLit.
 
 Inductive Bexp :=
   | BLit: BexpLit -> Bexp

@@ -35,20 +35,25 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) : BexpLit :=
         | mk_typ _ t =>
           match t with
             | bexplit b' => b'
-            | _ => false (* error! *)
+            | _ => bexp_error (* error! *)
           end
       end
     | BNot a => match eval_bexp a sigma with
-        | true => false
-        | false => true
+        | mk_bexp_lit true => mk_bexp_lit false
+        | mk_bexp_lit false => mk_bexp_lit true
+        | _ => bexp_error
       end
     | BAnd a b => match (eval_bexp a sigma, eval_bexp b sigma) with
-        | (true, true) => true
-        | _ => false
+        | (mk_bexp_lit true, mk_bexp_lit true) => mk_bexp_lit true
+        | (bexp_error, _) => bexp_error
+        | (_, bexp_error) => bexp_error
+        | _ => mk_bexp_lit false
       end
     | BOr a b => match (eval_bexp a sigma, eval_bexp b sigma) with
-        | (false, false) => false
-        | _ => true
+        | (mk_bexp_lit false, mk_bexp_lit false) => mk_bexp_lit false
+        | (bexp_error, _) => bexp_error
+        | (_, bexp_error) => bexp_error
+        | _ => mk_bexp_lit true
       end
   end.
 
@@ -88,8 +93,9 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
         | CPrint i => sigma (* TODO *)
         | CIf b c1 c2 =>
           match eval_bexp b sigma with
-            | true => eval_command_inner c1 sigma n'
-            | false => eval_command_inner c2 sigma n'
+            | mk_bexp_lit true => eval_command_inner c1 sigma n'
+            | mk_bexp_lit false => eval_command_inner c2 sigma n'
+            | bexp_error => sigma (* TODO: Error, if on an error *)
           end
         | CMatch i t_lst c_lst =>
           match t_lst with
@@ -111,15 +117,18 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                                   eval_command_inner c_h sigma n'
                                 else
                                   eval_command_inner (CMatch i t_t c_t) sigma n'
-      	       	       	      | aexp_error => sigma (*TODO: MJI: what are we doing when there is an error?*)
+      	       	       	      | aexp_error => eval_command_inner (CMatch i t_t c_t) sigma n' (* Then there is no match here *)
                             end
-                        | aexplit (aexp_error) => sigma (*TODO: MJI : xERROR OH NOES *)
+                        | aexplit aexp_error => sigma (* TODO: Error, matching on an error *)
+                        | bexplit bexp_error => sigma (* TODO: Error, matching on an error *)
                         | bexplit lit =>
                           (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_bexp (BVar i) sigma in
                             match ival, lit with
-                              | true, true => eval_command_inner c_h sigma n'
-                              | false, false => eval_command_inner c_h sigma n'
+                              | mk_bexp_lit true, mk_bexp_lit true => eval_command_inner c_h sigma n'
+                              | mk_bexp_lit false, mk_bexp_lit false => eval_command_inner c_h sigma n'
+                              | bexp_error, _ => sigma (* TODO: error *)
+                              | _, bexp_error => sigma (* TODO: error *)
                               | _, _ => eval_command_inner (CMatch i t_t c_t) sigma n'
                             end
                       end

@@ -7,7 +7,8 @@ Module Typ.
 (* All typ_s have a bool as their first argument, which represents the
   immutability of the typ; values that start with true can't ever be changed *)
 
-(* used by the state to determine if the value is immutable or not *)
+(* bool used by the state to determine if the value is immutable or not
+   true if immutable, false otherwise *)
 Inductive typ :=
   | mk_typ : bool -> ExpLit -> typ.
 

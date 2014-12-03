@@ -132,41 +132,17 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
             | mk_bexp_lit false => eval_command_inner c2 sigma n'
             | bexp_error => sigma (* TODO: Error, if on an error *)
           end
-        | CMatch i t_lst c_lst =>
-          match t_lst with
+        | CMatch exp exp_list cmd_list =>
+          match exp_list with
             | nil => sigma
-            | cons t_h t_t =>
-              match c_lst with
-                | nil => sigma
-                | cons c_h c_t => 
-                  match t_h with
-                    | mk_typ _ ti =>
-                      match ti with
-                        (* Add new types here *)
-                        | mk_explit_from_aexp (mk_aexp_lit qmatch) =>
-                          (* TODO: We need to check if the ident is that type first *)
-                          let ival := eval_aexp (AVar i) sigma in
-                            match ival with
-                              | mk_aexp_lit qval =>
-                                if Qeq_bool qval qmatch then
-                                  eval_command_inner c_h sigma n'
-                                else
-                                  eval_command_inner (CMatch i t_t c_t) sigma n'
-      	       	       	      | aexp_error => eval_command_inner (CMatch i t_t c_t) sigma n' (* Then there is no match here *)
-                            end
-                        | mk_explit_from_aexp aexp_error => sigma (* TODO: Error, matching on an error *)
-                        | mk_explit_from_bexp bexp_error => sigma (* TODO: Error, matching on an error *)
-                        | mk_explit_from_bexp lit =>
-                          (* TODO: We need to check if the ident is that type first *)
-                          let ival := eval_bexp (BVar i) sigma in
-                            match ival, lit with
-                              | mk_bexp_lit true, mk_bexp_lit true => eval_command_inner c_h sigma n'
-                              | mk_bexp_lit false, mk_bexp_lit false => eval_command_inner c_h sigma n'
-                              | bexp_error, _ => sigma (* TODO: error *)
-                              | _, bexp_error => sigma (* TODO: error *)
-                              | _, _ => eval_command_inner (CMatch i t_t c_t) sigma n'
-                            end
-                      end
+            | cons exp_h exp_t =>
+              match cmd_list with
+                | nil => sigma (* TODO: Error, less commands than match conditions *)
+                | cons cmd_h cmd_t =>
+                  match exp_is_equal exp exp_h sigma with
+                    | mk_bexp_lit true => eval_command_inner cmd_h sigma n'
+                    | mk_bexp_lit false => eval_command_inner (CMatch exp exp_t cmd_t) sigma n'
+                    | bexp_error => sigma (* TODO: Error evaluating conditions *)
                   end
               end
           end

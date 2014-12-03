@@ -9,8 +9,8 @@ Module Commands.
 Inductive Command :=
   | CWhile: Bexp -> Command -> Command
   | CRepeat: Aexp -> Command -> Command
-  | CSet: ident -> typ -> Command
-  | CLet: ident -> typ -> Command
+  | CSet: ident -> Exp -> Command
+  | CLet: ident -> Exp -> Command
   | CSkip: Command
   | CPrint: ident -> Command
   | CIf: Bexp -> Command -> Command -> Command

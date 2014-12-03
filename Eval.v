@@ -22,7 +22,7 @@ Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
       match (sigma i) with
         | mk_typ _ t =>
           match t with
-            | aexplit a' => a'
+            | mk_explit_from_aexp a' => a'
             | _ => aexp_error (*error!*)
           end
       end
@@ -35,7 +35,7 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) : BexpLit :=
       match (sigma i) with
         | mk_typ _ t =>
           match t with
-            | bexplit b' => b'
+            | mk_explit_from_bexp b' => b'
             | _ => bexp_error (* error! *)
           end
       end
@@ -122,8 +122,8 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                   eval_command_inner (CRepeat (ALit (mk_aexp_lit (Qmake (z-1) 1))) c) s' n'
               | _ => sigma (* TODO: Error, repeating on a decimal *)
             end
-        | CSet i t => update sigma i t
-        | CLet i t => update sigma i t
+        | CSet i e => update sigma i (mk_typ false (eval_exp e sigma))
+        | CLet i e => update sigma i (mk_typ true (eval_exp e sigma))
         | CSkip => sigma
         | CPrint i => sigma (* TODO *)
         | CIf b c1 c2 =>
@@ -143,7 +143,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                     | mk_typ _ ti =>
                       match ti with
                         (* Add new types here *)
-                        | aexplit (mk_aexp_lit qmatch) =>
+                        | mk_explit_from_aexp (mk_aexp_lit qmatch) =>
                           (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_aexp (AVar i) sigma in
                             match ival with
@@ -154,9 +154,9 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
                                   eval_command_inner (CMatch i t_t c_t) sigma n'
       	       	       	      | aexp_error => eval_command_inner (CMatch i t_t c_t) sigma n' (* Then there is no match here *)
                             end
-                        | aexplit aexp_error => sigma (* TODO: Error, matching on an error *)
-                        | bexplit bexp_error => sigma (* TODO: Error, matching on an error *)
-                        | bexplit lit =>
+                        | mk_explit_from_aexp aexp_error => sigma (* TODO: Error, matching on an error *)
+                        | mk_explit_from_bexp bexp_error => sigma (* TODO: Error, matching on an error *)
+                        | mk_explit_from_bexp lit =>
                           (* TODO: We need to check if the ident is that type first *)
                           let ival := eval_bexp (BVar i) sigma in
                             match ival, lit with

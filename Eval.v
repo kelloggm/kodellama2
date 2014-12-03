@@ -89,7 +89,7 @@ Definition exp_is_equal (e1 e2: Exp) (sigma: state): BexpLit :=
   match e1, e2 with
     | EAexp a1, EAexp a2 => aexp_is_equal a1 a2 sigma
     | EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma
-    | _, _ => bexp_error
+    | _, _ => mk_bexp_lit false (* TODO? This gives false even if one argument evaluates to an error *)
   end.
 
 (** Some tests for bexp eval *)

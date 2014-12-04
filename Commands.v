@@ -14,8 +14,11 @@ Inductive Command :=
   | CSkip: Command
   | CPrint: ident -> Command
   | CIf: Bexp -> Command -> Command -> Command
-  | CMatch: Exp -> list Exp -> list Command -> Command
-  | CSeq: Command -> Command -> Command (* for sequential commands *).
+  | CMatch: Exp -> Matchbody -> Command
+  | CSeq: Command -> Command -> Command (* for sequential commands *)
+with Matchbody :=
+  | MBNone: Matchbody
+  | MBSome: Exp -> Command -> Matchbody -> Matchbody.
 
 End Commands.
 

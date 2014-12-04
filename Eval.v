@@ -132,18 +132,14 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
             | mk_bexp_lit false => eval_command_inner c2 sigma n'
             | bexp_error => sigma (* TODO: Error, if on an error *)
           end
-        | CMatch exp exp_list cmd_list =>
-          match exp_list with
-            | nil => sigma
-            | cons exp_h exp_t =>
-              match cmd_list with
-                | nil => sigma (* TODO: Error, less commands than match conditions *)
-                | cons cmd_h cmd_t =>
-                  match exp_is_equal exp exp_h sigma with
-                    | mk_bexp_lit true => eval_command_inner cmd_h sigma n'
-                    | mk_bexp_lit false => eval_command_inner (CMatch exp exp_t cmd_t) sigma n'
-                    | bexp_error => sigma (* TODO: Error evaluating conditions *)
-                  end
+        | CMatch exp Matchbody =>
+          match Matchbody with
+            | MBNone => sigma
+            | MBSome m_exp m_cmd mb =>
+              match exp_is_equal exp m_exp sigma with
+                | mk_bexp_lit true => eval_command_inner m_cmd sigma n'
+                | mk_bexp_lit false => eval_command_inner (CMatch exp mb) sigma n'
+                | bexp_error => sigma (* TODO: Error evaluating conditions *)
               end
           end
         | CSeq c1 c2 => eval_command_inner c2 (eval_command_inner c1 sigma n') n'

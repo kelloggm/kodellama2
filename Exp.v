@@ -8,17 +8,22 @@ Module Exp.
 Inductive ExpLit :=
   | mk_explit_from_aexp: AexpLit -> ExpLit
   | mk_explit_from_bexp: BexpLit -> ExpLit
+  | mk_explit_from_sexp: SexpLit -> ExpLit
 with AexpLit :=
   (* Lit has sign, numerator, and denominator *)
   | mk_aexp_lit : Q -> AexpLit
   | aexp_error : AexpLit
 with BexpLit :=
   | mk_bexp_lit : bool -> BexpLit
-  | bexp_error : BexpLit.
+  | bexp_error : BexpLit
+with SexpLit :=
+  | mk_sexp_lit : string -> SexpLit
+  | sexp_error : SexpLit.
 
 Inductive Exp :=
   | EAexp: Aexp -> Exp
   | EBexp: Bexp -> Exp
+  | ESexp: Sexp -> Exp
 with Aexp :=
   | ALit: AexpLit -> Aexp
   | AVar: ident -> Aexp
@@ -36,7 +41,11 @@ with Bexp :=
   | BVar : ident -> Bexp
   | BEq: Exp -> Exp -> Bexp
   | BLt: Aexp -> Aexp -> Bexp
-  | BGt: Aexp -> Aexp -> Bexp.
+  | BGt: Aexp -> Aexp -> Bexp
+with Sexp :=
+  | SLit: SexpLit -> Sexp
+  | SConcat: Sexp -> Sexp -> Sexp
+  | SVar: ident -> Sexp.
 
 End Exp.
 

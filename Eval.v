@@ -3,7 +3,6 @@
 Require Export Typ.
 Require Export Sigma.
 Require Export Aexp.
-Require Export Bexp.
 Require Export Exp.
 Require Export Commands.
 
@@ -113,10 +112,33 @@ with bexp_is_equal (e1 e2: Bexp) (sigma: state) (n: nat): BexpLit :=
     | S n' => bexplit_is_equal (eval_bexp e1 sigma n') (eval_bexp e2 sigma n')
   end.
 
+Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
+  match e with
+    | SLit s => s
+    | SConcat s1 s2 =>
+      let s1eval := eval_sexp s1 sigma in
+      let s2eval := eval_sexp s2 sigma in
+        match s1eval, s2eval with
+          | sexp_error, _ => sexp_error
+          | _, sexp_error => sexp_error
+          | mk_sexp_lit str1, mk_sexp_lit str2 =>
+            mk_sexp_lit (append str1 str2)
+        end
+    | SVar i => 
+      match (sigma i) with
+        | mk_typ _ t =>
+          match t with
+            | mk_explit_from_sexp s' => s'
+            | _ => sexp_error (* error! *)
+          end
+      end
+  end.
+
 Definition eval_exp (e: Exp) (sigma: state) :=
   match e with
     | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
     | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5000)
+    | ESexp s => mk_explit_from_sexp (eval_sexp s sigma)
   end.
 
 (** Some tests for bexp eval *)

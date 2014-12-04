@@ -2,7 +2,7 @@
 
 all: kodellama
 
-kodellama: Ident.vo Exp.vo Aexp.vo Bexp.vo Typ.vo Sigma.vo Commands.vo Eval.vo
+kodellama: Ident.vo Exp.vo Aexp.vo Typ.vo Sigma.vo Commands.vo Eval.vo
 
 .v.vo:
 	coqc $<

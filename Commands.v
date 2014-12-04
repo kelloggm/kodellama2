@@ -1,7 +1,6 @@
 (** Commands *)
 
-Require Export Aexp.
-Require Export Bexp.
+Require Export Exp.
 Require Export Typ.
 
 Module Commands.

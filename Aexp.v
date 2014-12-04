@@ -3,13 +3,7 @@
 
 Module Aexp.
 
-Require Export QArith.
-Require Export Ident.
-
-Inductive AexpLit :=
-  (* Lit has sign, numerator, and denominator *)
-  | mk_aexp_lit : Q -> AexpLit
-  | aexp_error : AexpLit.
+Require Export Exp.
 
 Definition plus_aexplit (a b : AexpLit) := 
   match a, b with
@@ -45,16 +39,6 @@ Definition neg_aexplit (a : AexpLit) :=
   end.
 
 Definition aexplit_zero := mk_aexp_lit (Qmake 0 1).
-
-Inductive Aexp :=
-  | ALit: AexpLit -> Aexp
-  | AVar: ident -> Aexp
-  | APlus : Aexp -> Aexp -> Aexp
-  | AMinus : Aexp -> Aexp -> Aexp
-  | AMult : Aexp -> Aexp -> Aexp
-  | ADiv : Aexp -> Aexp -> Aexp
-  | AExp : Aexp -> Aexp -> Aexp
-  | ANeg : Aexp -> Aexp.
 
 End Aexp.
 

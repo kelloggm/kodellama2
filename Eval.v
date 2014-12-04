@@ -28,42 +28,6 @@ Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
       end
   end.
 
-Fixpoint eval_bexp (b: Bexp) (sigma : state) : BexpLit :=
-  match b with
-    | BLit b' => b'
-    | BVar i =>
-      match (sigma i) with
-        | mk_typ _ t =>
-          match t with
-            | mk_explit_from_bexp b' => b'
-            | _ => bexp_error (* error! *)
-          end
-      end
-    | BNot a => match eval_bexp a sigma with
-        | mk_bexp_lit true => mk_bexp_lit false
-        | mk_bexp_lit false => mk_bexp_lit true
-        | _ => bexp_error
-      end
-    | BAnd a b => match (eval_bexp a sigma, eval_bexp b sigma) with
-        | (mk_bexp_lit true, mk_bexp_lit true) => mk_bexp_lit true
-        | (bexp_error, _) => bexp_error
-        | (_, bexp_error) => bexp_error
-        | _ => mk_bexp_lit false
-      end
-    | BOr a b => match (eval_bexp a sigma, eval_bexp b sigma) with
-        | (mk_bexp_lit false, mk_bexp_lit false) => mk_bexp_lit false
-        | (bexp_error, _) => bexp_error
-        | (_, bexp_error) => bexp_error
-        | _ => mk_bexp_lit true
-      end
-  end.
-
-Definition eval_exp (e: Exp) (sigma: state) :=
-  match e with
-    | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
-    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma)
-  end.
-
 Definition aexplit_is_equal (e1 e2: AexpLit): BexpLit :=
   match e1, e2 with
     | aexp_error, _ => bexp_error
@@ -82,14 +46,77 @@ Definition bexplit_is_equal (e1 e2: BexpLit): BexpLit :=
     | mk_bexp_lit b1, mk_bexp_lit b2 => mk_bexp_lit (eqb b1 b2)
   end.
 
-Definition bexp_is_equal (e1 e2: Bexp) (sigma: state): BexpLit :=
-  bexplit_is_equal (eval_bexp e1 sigma) (eval_bexp e2 sigma).
+Fixpoint eval_bexp (b: Bexp) (sigma : state) (n: nat) : BexpLit :=
+  match n with
+    | O => bexp_error (* Too many computations *)
+    | S n' =>
+      match b with
+        | BLit b' => b'
+        | BVar i =>
+          match (sigma i) with
+            | mk_typ _ t =>
+              match t with
+                | mk_explit_from_bexp b' => b'
+                | _ => bexp_error (* error! *)
+              end
+          end
+        | BNot a => match eval_bexp a sigma n' with
+            | mk_bexp_lit true => mk_bexp_lit false
+            | mk_bexp_lit false => mk_bexp_lit true
+            | _ => bexp_error
+          end
+        | BAnd a b => match (eval_bexp a sigma n', eval_bexp b sigma n') with
+            | (mk_bexp_lit true, mk_bexp_lit true) => mk_bexp_lit true
+            | (bexp_error, _) => bexp_error
+            | (_, bexp_error) => bexp_error
+            | _ => mk_bexp_lit false
+          end
+        | BOr a b => match (eval_bexp a sigma n', eval_bexp b sigma n') with
+            | (mk_bexp_lit false, mk_bexp_lit false) => mk_bexp_lit false
+            | (bexp_error, _) => bexp_error
+            | (_, bexp_error) => bexp_error
+            | _ => mk_bexp_lit true
+          end
+        | BEq e1 e2 => exp_is_equal e1 e2 sigma n'
+        | BLt e1 e2 =>
+          let eval1 := eval_aexp e1 sigma in
+          let eval2 := eval_aexp e2 sigma in
+            match eval1, eval2 with
+              | aexp_error, _ => bexp_error
+              | _, aexp_error => bexp_error
+              | mk_aexp_lit q1, mk_aexp_lit q2 =>
+                mk_bexp_lit true (* TODO: Needs arithmetic function first *)
+            end
+        | BGt e1 e2 =>
+          let eval1 := eval_aexp e1 sigma in
+          let eval2 := eval_aexp e2 sigma in
+            match eval1, eval2 with
+              | aexp_error, _ => bexp_error
+              | _, aexp_error => bexp_error
+              | mk_aexp_lit q1, mk_aexp_lit q2 =>
+                mk_bexp_lit true (* TODO: Needs arithmetic function first *)
+            end
+      end
+  end
 
-Definition exp_is_equal (e1 e2: Exp) (sigma: state): BexpLit :=
-  match e1, e2 with
-    | EAexp a1, EAexp a2 => aexp_is_equal a1 a2 sigma
-    | EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma
-    | _, _ => mk_bexp_lit false (* TODO? This gives false even if one argument evaluates to an error *)
+with exp_is_equal (e1 e2: Exp) (sigma: state) (n: nat): BexpLit :=
+  match n, e1, e2 with
+    | O, _, _ => bexp_error
+    | S n', EAexp a1, EAexp a2 => aexp_is_equal a1 a2 sigma
+    | S n', EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma n'
+    | _, _, _ => mk_bexp_lit false (* TODO? This gives false even if one argument evaluates to an error *)
+  end
+
+with bexp_is_equal (e1 e2: Bexp) (sigma: state) (n: nat): BexpLit :=
+  match n with
+    | O => bexp_error
+    | S n' => bexplit_is_equal (eval_bexp e1 sigma n') (eval_bexp e2 sigma n')
+  end.
+
+Definition eval_exp (e: Exp) (sigma: state) :=
+  match e with
+    | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
+    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5000)
   end.
 
 (** Some tests for bexp eval *)
@@ -109,7 +136,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
     | S n' => 
       match cmd with
         | CWhile b c =>
-          if eval_bexp b sigma then
+          if eval_bexp b sigma 5000 then
             let s' := eval_command_inner c sigma n' in
               eval_command_inner cmd s' n'
           else sigma
@@ -127,7 +154,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
         | CSkip => sigma
         | CPrint i => sigma (* TODO *)
         | CIf b c1 c2 =>
-          match eval_bexp b sigma with
+          match eval_bexp b sigma 5000 with
             | mk_bexp_lit true => eval_command_inner c1 sigma n'
             | mk_bexp_lit false => eval_command_inner c2 sigma n'
             | bexp_error => sigma (* TODO: Error, if on an error *)
@@ -136,7 +163,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
           match Matchbody with
             | MBNone => sigma
             | MBSome m_exp m_cmd mb =>
-              match exp_is_equal exp m_exp sigma with
+              match exp_is_equal exp m_exp sigma 5000 with
                 | mk_bexp_lit true => eval_command_inner m_cmd sigma n'
                 | mk_bexp_lit false => eval_command_inner (CMatch exp mb) sigma n'
                 | bexp_error => sigma (* TODO: Error evaluating conditions *)

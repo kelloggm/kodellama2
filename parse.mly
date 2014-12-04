@@ -4,13 +4,24 @@
 
 (* THIS WOULD ACTUALLY NEED TO EXIST >.<
    OR ELSE I NEED TO MAKE THIS CALL THE COQ
-   DIRECTLY
+   DIRECTLY *)
 %{
 
-open AbstractSyntax
+open Commands
+open Aexp
+open Bexp
+
+let string_to_q str =
+	try
+		let ind = String.index str '.' in
+		let denompow = (String.length str) - ind - 1 in
+		let numerator = String.concat "" [(String.sub str 0 ind) ; (String.sub str (ind + 1) ((String.length str) - ind -1))] in
+		(int_of_string numerator, int_of_float ((float_of_int 10) ** (float_of_int denompow)))
+	with Not_found ->
+		(int_of_string str, 1)
 
 %}
-*)
+
 
 %token <string>         IDENTIFIER
 %token <string>         NUMBER
@@ -53,7 +64,7 @@ open AbstractSyntax
 %token EOF
 
 %start com
-%type <Command.com> com
+%type <Commands.coq_Command> com
 
 %left AND
 %left OR
@@ -91,7 +102,7 @@ aexp : IDENTIFIER			     { AVar($1) }
 | aexp DIV aexp 			     { ADiv($1, $3) }
 | aexp EXP aexp 			     { AExp($1, $3) }
 | LPAREN aexp RPAREN			     { $2 }
-| NUMBER      				     { (* MAGIC... *) AexpLit($1) }
+| NUMBER      				     { (* MAGIC... *) ALit($1) }
 ;
 
 uexp: IDENTIFIER			     { Uexpid($1) }
@@ -104,21 +115,21 @@ expr : aexp				     { $1 }
 | uexp				     	     { $1 }
 ;
 
-matchbody : END				     { () }
-| WITH expr com matchbody		     { Matchbody($2, $3) }
+matchbody : END				     { MBNone }
+| WITH expr com matchbody		     { MBSome($2, $3) }
 ;
 
-com : SKIP                                   { Skip }
-| SET IDENTIFIER TO expr                     { Set($2,$4) } 
-| com SEQ com                          	     { Seq($1,$3) }
-| IF bexp THEN com ELSE com END              { If($2,$4,$6) }
-| IF bexp THEN com END			     { If($2,$4,Skip) }
-| WHILE bexp DO com END                      { While($2,$4) }
-| LET IDENTIFIER BE expr		     { Let($2,$4) }
-| PRINT expr                                 { Print($2) }
-| REP aexp TIMES com END		     { Repeat($2, $4) }
-| MATCH expr matchbody			     { Match($2, $3) }
-| PRINT expr 				     { Print($2) }
+com : SKIP                                   { CSkip }
+| SET IDENTIFIER TO expr                     { CSet($2,$4) } 
+| com SEQ com                          	     { CSeq($1,$3) }
+| IF bexp THEN com ELSE com END              { CIf($2,$4,$6) }
+| IF bexp THEN com END			     { CIf($2,$4,Skip) }
+| WHILE bexp DO com END                      { CWhile($2,$4) }
+| LET IDENTIFIER BE expr		     { CLet($2,$4) }
+| PRINT expr                                 { CPrint($2) }
+| REP aexp TIMES com END		     { CRepeat($2, $4) }
+| MATCH expr matchbody			     { CMatch($2, $3) }
+| PRINT expr 				     { CPrint($2) }
 | EOF					     { () }
 ;
 

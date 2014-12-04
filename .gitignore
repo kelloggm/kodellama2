@@ -4,3 +4,6 @@
 *.v.d
 *~
 ocaml/
+*.cmi
+*.cmo
+a.out

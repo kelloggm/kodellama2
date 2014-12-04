@@ -29,6 +29,9 @@ rule initial = parse
     | '>'	       { GT }
     | ">="	       { GE }
     | "<="	       { LE }
+    | "and"	       { AND }
+    | "or"	       { OR }
+    | "not"	       { NOT }
     | "skip"	       { SKIP }
     | "set"	       { SET }
     | "to"	       { TO }

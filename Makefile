@@ -9,3 +9,10 @@ kodellama: Ident.vo Aexp.vo Bexp.vo Exp.vo Typ.vo Sigma.vo Commands.vo Eval.vo
 
 clean:
 	rm -rf *.vo
+	rm -rf ocaml/
+
+ocaml:
+	coqtop < Extract.v
+	mkdir ocaml
+	mv *.ml ocaml/
+	mv *.mli ocaml/

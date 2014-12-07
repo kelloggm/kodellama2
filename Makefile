@@ -7,8 +7,12 @@ kodellama: Ident.vo Exp.vo Aexp.vo Typ.vo Sigma.vo Commands.vo Eval.vo BinString
 .v.vo:
 	coqc $<
 
-clean:
+clean:	cleanv cleano
+
+cleanv:
 	rm -rf *.vo
+
+cleano:
 	rm -rf ocaml/
 
 ocaml:

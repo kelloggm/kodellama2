@@ -2,15 +2,13 @@
 
 (* @ Owner Scelerus *)
 
-(* THIS WOULD ACTUALLY NEED TO EXIST >.<
-   OR ELSE I NEED TO MAKE THIS CALL THE COQ
-   DIRECTLY *)
 %{
 
 open Commands
 open Aexp
 open Bexp
 open BinStringToQ
+open BatString
 
 let convert_pair_to_q num denom =
 	let sign = if num > 0 then coq_sPos else if num < 0 then coq_sNeg else coq_sZero in

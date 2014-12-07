@@ -16,4 +16,3 @@ ocaml:
 	mkdir ocaml
 	mv *.ml ocaml/
 	mv *.mli ocaml/
-	mv ocaml/StringToQ.ml StringToQ.ml

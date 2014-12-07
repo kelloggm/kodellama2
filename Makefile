@@ -29,6 +29,7 @@ ocaml:
 	cp ocaml/BatString.ml .
 	cp ocaml/main.ml .
 	mv *.mli ocaml/
+	python InfiniteLoops.py
 
 usable:
 	cd ocaml ;\

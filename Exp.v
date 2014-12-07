@@ -6,6 +6,7 @@ Require Export Ident.
 Module Exp.
 
 Inductive ExpLit :=
+  | exp_error: ExpLit
   | mk_explit_from_aexp: AexpLit -> ExpLit
   | mk_explit_from_bexp: BexpLit -> ExpLit
   | mk_explit_from_sexp: SexpLit -> ExpLit

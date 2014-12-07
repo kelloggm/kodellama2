@@ -1,0 +1,27 @@
+// Set this number to the number you want to run the collatz conjecture of
+set num to 19
+set steps to 0
+set repeat to true
+// Let's test match statements and if statements!
+while repeat is true do
+	match num
+		with 0
+			set repeat to false
+		with num
+			// We dont have modular division yet so do it here
+			set remainder to num
+			while remainder > 0 do
+				remainder = remainder - 2
+			end
+			if remainder is not 0 then
+				remainder = 1
+			end
+			match remainder
+				with 0 set num to num / 2
+				with 1 set num to 3*n + 1
+			end
+			set steps to steps + 1
+	end
+end
+print "Calculating the collatz conjecture of your number took the following number of steps"
+print steps

@@ -1,0 +1,9 @@
+//Set this to the place in the fib sequence to get
+let place be 10
+set a to 0
+set b to 1
+repeat place times
+	set a to b
+	set b to a + b
+end
+print a

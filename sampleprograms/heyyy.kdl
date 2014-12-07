@@ -1,0 +1,8 @@
+// Set this number to the number of ys we want
+set ys to 5
+set str to "he"
+while ys > 0 do
+	str = str + "y"
+	ys = ys - 1
+end
+print str

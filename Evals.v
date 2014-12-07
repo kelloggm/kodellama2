@@ -137,7 +137,7 @@ Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
 Definition eval_exp (e: Exp) (sigma: state) :=
   match e with
     | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
-    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5000)
+    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5)
     | ESexp s => mk_explit_from_sexp (eval_sexp s sigma)
   end.
 
@@ -158,7 +158,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
     | S n' => 
       match cmd with
         | CWhile b c =>
-          if eval_bexp b sigma 5000 then
+          if eval_bexp b sigma 5 then
             let s' := eval_command_inner c sigma n' in
               eval_command_inner cmd s' n'
           else sigma
@@ -176,7 +176,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
         | CSkip => sigma
         | CPrint i => sigma (* TODO *)
         | CIf b c1 c2 =>
-          match eval_bexp b sigma 5000 with
+          match eval_bexp b sigma 5 with
             | mk_bexp_lit true => eval_command_inner c1 sigma n'
             | mk_bexp_lit false => eval_command_inner c2 sigma n'
             | bexp_error => sigma (* TODO: Error, if on an error *)
@@ -185,7 +185,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
           match Matchbody with
             | MBNone => sigma
             | MBSome m_exp m_cmd mb =>
-              match exp_is_equal exp m_exp sigma 5000 with
+              match exp_is_equal exp m_exp sigma 5 with
                 | mk_bexp_lit true => eval_command_inner m_cmd sigma n'
                 | mk_bexp_lit false => eval_command_inner (CMatch exp mb) sigma n'
                 | bexp_error => sigma (* TODO: Error evaluating conditions *)
@@ -196,7 +196,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
   end.
 
 Definition eval_command (cmd: Command) (sigma: state): state :=
-  eval_command_inner cmd sigma 5000.
+  eval_command_inner cmd sigma 5.
 
 End Evals.
 

@@ -13,6 +13,9 @@ Definition update (sigma : state) (i : ident) (t : typ) : state :=
       | mk_typ b _ => if b then (sigma i) else t end  
     else sigma i'.
 
+Definition initial_state (i: ident) := 
+  mk_typ true exp_error.
+
 End Sigma.
 
 Export Sigma.

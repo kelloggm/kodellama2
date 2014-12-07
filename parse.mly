@@ -10,15 +10,23 @@
 open Commands
 open Aexp
 open Bexp
+open BinStringToQ
+
+let convert_pair_to_q num denom =
+	let sign = if num > 0 then coq_sPos else if num < 0 then coq_sNeg else coq_sZero in
+	let posnum = if sign = coq_sNeg then -1*num else num in
+	let numStr = Printf.sprintf "X" posnum in
+	let denStr = Printf.sprintf "X" denom in
+	hex_str_to_q numStr denStr sign
 
 let string_to_q str =
 	try
 		let ind = String.index str '.' in
 		let denompow = (String.length str) - ind - 1 in
 		let numerator = String.concat "" [(String.sub str 0 ind) ; (String.sub str (ind + 1) ((String.length str) - ind -1))] in
-		(int_of_string numerator, int_of_float ((float_of_int 10) ** (float_of_int denompow)))
+		convert_pair_to_q (int_of_string numerator) (int_of_float ((float_of_int 10) ** (float_of_int denompow)))
 	with Not_found ->
-		(int_of_string str, 1)
+		convert_pair_to_q (int_of_string str) 1
 
 %}
 

@@ -1,8 +1,8 @@
+%{
+
 (* A parser for the Kodellama 2 language *)
 
 (* @ Owner Scelerus *)
-
-%{
 
 open Commands
 open Aexp

@@ -2,11 +2,12 @@
 
 (* @ Owner Scelerus *)
 
-(*
+
 {
 open Parse
+open Printf
 }
-*)
+
 
 
 let blank = [' ' '\012' '\t']
@@ -54,19 +55,23 @@ rule initial = parse
 			let str = Lexing.lexeme lexbuf in 
   			IDENTIFIER(str)
   			}
-    | \"([^"^\n])*\" {
+    | ['\"']([^'\"''\n'])*['\"'] {
       		     let str = Lexing.lexeme lexbuf in
 		     STRING(str)
 		     }
-    | ((([0-9])+(\.?)([0-9])*)|(\.)([0-9]+)) {
+		     
+    | ['-']?['0'-'9']+(['.']['0'-'9']+)? {
       					     let str = Lexing.lexeme lexbuf in
 					     NUMBER(str)
 					     }
+
+    | _       {
+      	      Printf.printf ("You have a character Kodellama does not know : '%s'\n") (Lexing.lexeme lexbuf) ;
+  	      exit 1 
+	      }					     
+
     | eof		{ EOF }
-    | _       { 
-      	      Printf.printf "You've got a character Kodellama doesn't know : '%s'\n" (Lexing.lexeme lexbuf) ;
-  	      exit 1 }
- 
+
 
 and endline = parse
     '\n'    { initial lexbuf}

@@ -17,6 +17,9 @@ cleano:
 
 ocaml:
 	coqtop < Extract.v
+	ocamllex lex.mll
+	ocamlyacc parse.mly
 	mkdir ocaml
 	mv *.ml ocaml/
+	cp ocaml/BatString.ml .
 	mv *.mli ocaml/

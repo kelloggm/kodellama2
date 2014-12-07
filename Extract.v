@@ -1,5 +1,6 @@
 (* @ Owner MattIrv *)
 
+Require Import ExtrOcamlString.
 Require Export Commands.
 Require Export Aexp.
 Require Export Bexp.

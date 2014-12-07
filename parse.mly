@@ -15,8 +15,8 @@ open BinStringToQ
 let convert_pair_to_q num denom =
 	let sign = if num > 0 then coq_sPos else if num < 0 then coq_sNeg else coq_sZero in
 	let posnum = if sign = coq_sNeg then -1*num else num in
-	let numStr = Printf.sprintf "X" posnum in
-	let denStr = Printf.sprintf "X" denom in
+	let numStr = String.to_list (Printf.sprintf "X" posnum) in
+	let denStr = String.to_list (Printf.sprintf "X" denom) in
 	hex_str_to_q numStr denStr sign
 
 let string_to_q str =
@@ -84,7 +84,7 @@ let string_to_q str =
 
 %%
 
-sexp: STRING				     { StrLit($1) }
+sexp: STRING				     { StrLit(String.to_list $1) }
 | IDENTIFIER				     { StrVar($1) }
 | sexp PLUS sexp			     { StrConcat($1, $3) }
 ;

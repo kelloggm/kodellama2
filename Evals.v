@@ -6,7 +6,7 @@ Require Export Aexp.
 Require Export Exp.
 Require Export Commands.
 
-Module Eval.
+Module Evals.
 
 Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
   match a with
@@ -198,6 +198,6 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
 Definition eval_command (cmd: Command) (sigma: state): state :=
   eval_command_inner cmd sigma 5000.
 
-End Eval.
+End Evals.
 
-Export Eval.
+Export Evals.

@@ -2,7 +2,7 @@
 
 all: kodellama
 
-kodellama: Ident.vo Exp.vo Aexp.vo Typ.vo Sigma.vo Commands.vo Eval.vo BinStringToQ.vo
+kodellama: Ident.vo Exp.vo Aexp.vo Typ.vo Sigma.vo Commands.vo Evals.vo BinStringToQ.vo
 
 .v.vo:
 	coqc $<
@@ -22,4 +22,5 @@ ocaml:
 	mkdir ocaml
 	mv *.ml ocaml/
 	cp ocaml/BatString.ml .
+	cp ocaml/main.ml .
 	mv *.mli ocaml/

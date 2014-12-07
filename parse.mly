@@ -6,7 +6,7 @@
 
 open Commands
 open Aexp
-open Bexp
+open Exp
 open BinStringToQ
 open BatString
 
@@ -70,7 +70,7 @@ let string_to_q str =
 %token EOF
 
 %start com
-%type <Commands.coq_Command> com
+%type < Commands.Commands.coq_Command > com
 
 %left AND
 %left OR

@@ -84,7 +84,7 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) (n: nat) : BexpLit :=
               | aexp_error, _ => bexp_error
               | _, aexp_error => bexp_error
               | mk_aexp_lit q1, mk_aexp_lit q2 =>
-                mk_bexp_lit true (* TODO: Needs arithmetic function first *)
+                mk_bexp_lit (andb (Qle_bool q1 q2) (negb (Qeq_bool q1 q2)))
             end
         | BGt e1 e2 =>
           let eval1 := eval_aexp e1 sigma in
@@ -93,7 +93,7 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) (n: nat) : BexpLit :=
               | aexp_error, _ => bexp_error
               | _, aexp_error => bexp_error
               | mk_aexp_lit q1, mk_aexp_lit q2 =>
-                mk_bexp_lit true (* TODO: Needs arithmetic function first *)
+                mk_bexp_lit (andb (Qle_bool q2 q1) (negb (Qeq_bool q1 q2)))
             end
       end
   end

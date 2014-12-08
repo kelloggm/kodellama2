@@ -222,7 +222,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
         | CSet i e => update sigma i (mk_typ false (eval_exp e sigma))
         | CLet i e => update sigma i (mk_typ true (eval_exp e sigma))
         | CSkip => sigma
-        | CPrint exp => sigma (* TODO *)
+        | CPrint exp => initial_state (* Trash so the exporter doesnt optimize it out *)
         | CIf b c1 c2 =>
           match eval_bexp b sigma 5 with
             | mk_bexp_lit true => eval_command_inner c1 sigma n'

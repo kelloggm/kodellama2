@@ -52,7 +52,7 @@ with Sexp :=
   | SVar: ident -> Sexp
 with Uexp :=
   | Uexpid: ident -> Uexp
-  | Uexpplus: Uexp -> Uexp -> Uexp.
+  | Uexpplus: Uexp -> Exp -> Uexp.
 
 End Exp.
 

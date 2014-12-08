@@ -152,7 +152,15 @@ Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
       end
   end.
 
-Fixpoint eval_uexp (e: Uexp) (sigma: state) :=
+Fixpoint eval_exp (e: Exp) (sigma: state) :=
+  match e with
+    | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
+    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5)
+    | ESexp s => mk_explit_from_sexp (eval_sexp s sigma)
+    | EUexp u => eval_uexp u sigma
+  end
+
+with eval_uexp (e: Uexp) (sigma: state) :=
   match e with
     | Uexpid i =>
       match (sigma i) with
@@ -160,7 +168,7 @@ Fixpoint eval_uexp (e: Uexp) (sigma: state) :=
       end
     | Uexpplus e1 e2 =>
       let e1eval := eval_uexp e1 sigma in
-      let e2eval := eval_uexp e2 sigma in
+      let e2eval := eval_exp e2 sigma in
         match e1eval with
           | mk_explit_from_aexp alit1 => 
             match e2eval with
@@ -179,14 +187,6 @@ Fixpoint eval_uexp (e: Uexp) (sigma: state) :=
             end
           | exp_error => exp_error
         end
-  end.
-
-Definition eval_exp (e: Exp) (sigma: state) :=
-  match e with
-    | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
-    | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5)
-    | ESexp s => mk_explit_from_sexp (eval_sexp s sigma)
-    | EUexp u => eval_uexp u sigma
   end.
 
 (** Some tests for bexp eval *)

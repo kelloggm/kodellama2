@@ -87,7 +87,7 @@ let string_to_q str =
 %%
 
 uexp: IDENTIFIER			     { Exp.Uexpid(string_to_list $1) }
-| IDENTIFIER PLUS uexp			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
+| IDENTIFIER PLUS expr			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
 ;
 
 sexp: STRING				     { Exp.SLit(Exp.Coq_mk_sexp_lit (string_to_list $1)) }

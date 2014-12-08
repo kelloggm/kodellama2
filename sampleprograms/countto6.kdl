@@ -1,5 +1,5 @@
 set x to 1
-repeat 6 times: skip
+repeat 6 times:
 	print x
 	set x to x+1
 end

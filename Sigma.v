@@ -10,7 +10,12 @@ Definition state := ident -> typ.
 Definition update (sigma : state) (i : ident) (t : typ) : state :=
   fun i' => if beq_ident i i' 
     then match (sigma i) with
-      | mk_typ b _ => if b then (sigma i) else t end  
+      | mk_typ b t' => 
+        match t' with
+          | exp_error => t
+          | _ => if b then (sigma i) else t
+        end
+      end
     else sigma i'.
 
 Definition initial_state (i: ident) := 

@@ -86,6 +86,10 @@ let string_to_q str =
 
 %%
 
+uexp: IDENTIFIER			     { Exp.Uexpid(string_to_list $1) }
+| IDENTIFIER PLUS uexp			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
+;
+
 sexp: STRING				     { Exp.SLit(Exp.Coq_mk_sexp_lit (string_to_list $1)) }
 | IDENTIFIER				     { Exp.SVar(string_to_list $1) }
 | sexp PLUS sexp			     { Exp.SConcat($1, $3) }
@@ -116,10 +120,6 @@ aexp : IDENTIFIER			     { Exp.AVar(string_to_list $1) }
 									match myq with
 										| Some q -> Exp.ALit(Exp.Coq_mk_aexp_lit q)
 										| None -> Exp.ALit(Exp.Coq_aexp_error) }
-;
-
-uexp: IDENTIFIER			     { Exp.Uexpid(string_to_list $1) }
-| IDENTIFIER PLUS uexp			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
 ;
 
 expr : aexp				     { Exp.EAexp $1 }

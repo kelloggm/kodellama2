@@ -25,6 +25,7 @@ Inductive Exp :=
   | EAexp: Aexp -> Exp
   | EBexp: Bexp -> Exp
   | ESexp: Sexp -> Exp
+  | EUexp: Uexp -> Exp
 with Aexp :=
   | ALit: AexpLit -> Aexp
   | AVar: ident -> Aexp
@@ -43,10 +44,15 @@ with Bexp :=
   | BEq: Exp -> Exp -> Bexp
   | BLt: Aexp -> Aexp -> Bexp
   | BGt: Aexp -> Aexp -> Bexp
+  | BLe: Aexp -> Aexp -> Bexp
+  | BGe: Aexp -> Aexp -> Bexp
 with Sexp :=
   | SLit: SexpLit -> Sexp
   | SConcat: Sexp -> Sexp -> Sexp
-  | SVar: ident -> Sexp.
+  | SVar: ident -> Sexp
+with Uexp :=
+  | Uexpid: ident -> Uexp
+  | Uexpplus: Uexp -> Uexp -> Uexp.
 
 End Exp.
 

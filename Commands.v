@@ -11,7 +11,7 @@ Inductive Command :=
   | CSet: ident -> Exp -> Command
   | CLet: ident -> Exp -> Command
   | CSkip: Command
-  | CPrint: ident -> Command
+  | CPrint: Exp -> Command
   | CIf: Bexp -> Command -> Command -> Command
   | CMatch: Exp -> Matchbody -> Command
   | CSeq: Command -> Command -> Command (* for sequential commands *)

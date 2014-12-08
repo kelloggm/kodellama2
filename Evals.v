@@ -95,6 +95,24 @@ Fixpoint eval_bexp (b: Bexp) (sigma : state) (n: nat) : BexpLit :=
               | mk_aexp_lit q1, mk_aexp_lit q2 =>
                 mk_bexp_lit (andb (Qle_bool q2 q1) (negb (Qeq_bool q1 q2)))
             end
+        | BLe e1 e2 =>
+          let eval1 := eval_aexp e1 sigma in
+          let eval2 := eval_aexp e2 sigma in
+            match eval1, eval2 with
+              | aexp_error, _ => bexp_error
+              | _, aexp_error => bexp_error
+              | mk_aexp_lit q1, mk_aexp_lit q2 =>
+                mk_bexp_lit (Qle_bool q1 q2)
+            end
+        | BGe e1 e2 =>
+          let eval1 := eval_aexp e1 sigma in
+          let eval2 := eval_aexp e2 sigma in
+            match eval1, eval2 with
+              | aexp_error, _ => bexp_error
+              | _, aexp_error => bexp_error
+              | mk_aexp_lit q1, mk_aexp_lit q2 =>
+                mk_bexp_lit (Qle_bool q2 q1)
+            end
       end
   end
 
@@ -134,11 +152,41 @@ Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
       end
   end.
 
+Fixpoint eval_uexp (e: Uexp) (sigma: state) :=
+  match e with
+    | Uexpid i =>
+      match (sigma i) with
+        | mk_typ _ t => t
+      end
+    | Uexpplus e1 e2 =>
+      let e1eval := eval_uexp e1 sigma in
+      let e2eval := eval_uexp e2 sigma in
+        match e1eval with
+          | mk_explit_from_aexp alit1 => 
+            match e2eval with
+              | mk_explit_from_aexp alit2 => mk_explit_from_aexp (plus_aexplit alit1 alit2)
+              | mk_explit_from_bexp _ => mk_explit_from_bexp bexp_error
+              | mk_explit_from_sexp _ => mk_explit_from_sexp sexp_error
+              | exp_error => exp_error
+            end
+          | mk_explit_from_bexp _ => mk_explit_from_bexp bexp_error
+          | mk_explit_from_sexp slit1 =>
+            match e2eval with
+              | mk_explit_from_aexp _ => mk_explit_from_aexp aexp_error
+              | mk_explit_from_bexp _ => mk_explit_from_bexp bexp_error
+              | mk_explit_from_sexp slit2 => mk_explit_from_sexp (eval_sexp (SConcat (SLit slit1) (SLit slit2)) sigma)
+              | exp_error => exp_error
+            end
+          | exp_error => exp_error
+        end
+  end.
+
 Definition eval_exp (e: Exp) (sigma: state) :=
   match e with
     | EAexp a => mk_explit_from_aexp (eval_aexp a sigma)
     | EBexp b => mk_explit_from_bexp (eval_bexp b sigma 5)
     | ESexp s => mk_explit_from_sexp (eval_sexp s sigma)
+    | EUexp u => eval_uexp u sigma
   end.
 
 (** Some tests for bexp eval *)
@@ -174,7 +222,7 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
         | CSet i e => update sigma i (mk_typ false (eval_exp e sigma))
         | CLet i e => update sigma i (mk_typ true (eval_exp e sigma))
         | CSkip => sigma
-        | CPrint i => sigma (* TODO *)
+        | CPrint exp => sigma (* TODO *)
         | CIf b c1 c2 =>
           match eval_bexp b sigma 5 with
             | mk_bexp_lit true => eval_command_inner c1 sigma n'

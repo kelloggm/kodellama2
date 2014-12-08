@@ -4,24 +4,28 @@
 
 (* @ Owner Scelerus *)
 
-open Commands
 open Aexp
 open Exp
 open BinStringToQ
-open BatString
+
+(* Adapted from ocaml FAQ *)
+let string_to_list str =
+	let rec exp i l =
+		if i < 0 then l else exp (i-1) ((CoreString.get str i) :: l) in
+	exp ((CoreString.length str) - 1) []
 
 let convert_pair_to_q num denom =
-	let sign = if num > 0 then coq_sPos else if num < 0 then coq_sNeg else coq_sZero in
-	let posnum = if sign = coq_sNeg then -1*num else num in
-	let numStr = String.to_list (Printf.sprintf "X" posnum) in
-	let denStr = String.to_list (Printf.sprintf "X" denom) in
-	hex_str_to_q numStr denStr sign
+	let sign = if num > 0 then BinStringToQ.Coq_sPos else if num < 0 then BinStringToQ.Coq_sNeg else BinStringToQ.Coq_sZero in
+	let posnum = if sign = BinStringToQ.Coq_sNeg then -1*num else num in
+	let numStr = string_to_list (Printf.sprintf "%X" posnum) in
+	let denStr = string_to_list (Printf.sprintf "%X" denom) in
+	BinStringToQ.hex_str_to_q numStr denStr sign
 
 let string_to_q str =
 	try
-		let ind = String.index str '.' in
-		let denompow = (String.length str) - ind - 1 in
-		let numerator = String.concat "" [(String.sub str 0 ind) ; (String.sub str (ind + 1) ((String.length str) - ind -1))] in
+		let ind = CoreString.index str '.' in
+		let denompow = (CoreString.length str) - ind - 1 in
+		let numerator = CoreString.concat "" [(CoreString.sub str 0 ind) ; (CoreString.sub str (ind + 1) ((CoreString.length str) - ind -1))] in
 		convert_pair_to_q (int_of_string numerator) (int_of_float ((float_of_int 10) ** (float_of_int denompow)))
 	with Not_found ->
 		convert_pair_to_q (int_of_string str) 1
@@ -82,60 +86,62 @@ let string_to_q str =
 
 %%
 
-sexp: STRING				     { StrLit(String.to_list $1) }
-| IDENTIFIER				     { StrVar($1) }
-| sexp PLUS sexp			     { StrConcat($1, $3) }
+sexp: STRING				     { Exp.SLit(Exp.Coq_mk_sexp_lit (string_to_list $1)) }
+| IDENTIFIER				     { Exp.SVar(string_to_list $1) }
+| sexp PLUS sexp			     { Exp.SConcat($1, $3) }
 ;
 
-bexp : TRUE				     { BTrue }
-| FALSE					     { BFalse }
-| bexp AND bexp				     { BAnd($1, $3) }
-| bexp OR bexp				     { BOr($1, $3) }
-| NOT bexp				     { BNot($2) }
-| expr EQ expr				     { BEq($1, $3) }
-| aexp LT aexp				     { BLt($1, $3) }
-| aexp LE aexp				     { BLe($1, $3) }
-| aexp GT aexp				     { BGt($1, $3) }
-| aexp GE aexp				     { BGe($1, $3) }
-| IDENTIFIER				     { BVar($1) }
+bexp : TRUE				     { Exp.BLit (Exp.Coq_mk_bexp_lit true) }
+| FALSE					     { Exp.BLit (Exp.Coq_mk_bexp_lit false) }
+| bexp AND bexp				     { Exp.BAnd($1, $3) }
+| bexp OR bexp				     { Exp.BOr($1, $3) }
+| NOT bexp				     { Exp.BNot($2) }
+| expr EQ expr				     { Exp.BEq($1, $3) }
+| aexp LT aexp				     { Exp.BLt($1, $3) }
+| aexp LE aexp				     { Exp.BLe($1, $3) }
+| aexp GT aexp				     { Exp.BGt($1, $3) }
+| aexp GE aexp				     { Exp.BGe($1, $3) }
+| IDENTIFIER				     { Exp.BVar(string_to_list $1) }
 | LPAREN bexp RPAREN			     { $2 }
 ;
 
-aexp : IDENTIFIER			     { AVar($1) }
-| aexp PLUS aexp 			     { APlus($1, $3) }
-| aexp MINUS aexp 			     { AMinus($1, $3) }
-| aexp MULT aexp 			     { AMult($1, $3) }
-| aexp DIV aexp 			     { ADiv($1, $3) }
-| aexp EXP aexp 			     { AExp($1, $3) }
+aexp : IDENTIFIER			     { Exp.AVar(string_to_list $1) }
+| aexp PLUS aexp 			     { Exp.APlus($1, $3) }
+| aexp MINUS aexp 			     { Exp.AMinus($1, $3) }
+| aexp MULT aexp 			     { Exp.AMult($1, $3) }
+| aexp DIV aexp 			     { Exp.ADiv($1, $3) }
+| aexp EXP aexp 			     { Exp.AExp($1, $3) }
 | LPAREN aexp RPAREN			     { $2 }
-| NUMBER      				     { (* MAGIC... *) ALit($1) }
+| NUMBER      				     { let myq = string_to_q $1 in
+									match myq with
+										| Some q -> Exp.ALit(Exp.Coq_mk_aexp_lit q)
+										| None -> Exp.ALit(Exp.Coq_aexp_error) }
 ;
 
-uexp: IDENTIFIER			     { Uexpid($1) }
-| IDENTIFIER PLUS uexp			     { Uexpplus($1, $3) }
+uexp: IDENTIFIER			     { Exp.Uexpid(string_to_list $1) }
+| IDENTIFIER PLUS uexp			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
 ;
 
-expr : aexp				     { $1 }
-| bexp 					     { $1 }
-| sexp					     { $1 }
-| uexp				     	     { $1 }
+expr : aexp				     { Exp.EAexp $1 }
+| bexp 					     { Exp.EBexp $1 }
+| sexp					     { Exp.ESexp $1 }
+| uexp				     	 { Exp.EUexp $1 }
 ;
 
-matchbody : END				     { MBNone }
-| WITH expr com matchbody		     { MBSome($2, $3) }
+matchbody : END				     { Commands.Commands.MBNone }
+| WITH expr com matchbody		     { Commands.Commands.MBSome($2, $3, $4) }
 ;
 
-com : SKIP                                   { CSkip }
-| SET IDENTIFIER TO expr                     { CSet($2,$4) } 
-| com SEQ com                          	     { CSeq($1,$3) }
-| IF bexp THEN com ELSE com END              { CIf($2,$4,$6) }
-| IF bexp THEN com END			     { CIf($2,$4,Skip) }
-| WHILE bexp DO com END                      { CWhile($2,$4) }
-| LET IDENTIFIER BE expr		     { CLet($2,$4) }
-| PRINT expr                                 { CPrint($2) }
-| REP aexp TIMES com END		     { CRepeat($2, $4) }
-| MATCH expr matchbody			     { CMatch($2, $3) }
-| PRINT expr 				     { CPrint($2) }
-| EOF					     { () }
+com : SKIP                                   { Commands.Commands.CSkip }
+| SET IDENTIFIER TO expr                     { Commands.Commands.CSet(string_to_list $2,$4) } 
+| com SEQ com                          	     { Commands.Commands.CSeq($1,$3) }
+| IF bexp THEN com ELSE com END              { Commands.Commands.CIf($2,$4,$6) }
+| IF bexp THEN com END			     { Commands.Commands.CIf($2,$4,Commands.Commands.CSkip) }
+| WHILE bexp DO com END                      { Commands.Commands.CWhile($2,$4) }
+| LET IDENTIFIER BE expr		     { Commands.Commands.CLet(string_to_list $2,$4) }
+| PRINT expr                                 { Commands.Commands.CPrint($2) }
+| REP aexp TIMES com END		     { Commands.Commands.CRepeat($2, $4) }
+| MATCH expr matchbody			     { Commands.Commands.CMatch($2, $3) }
+| EOF					     { Commands.Commands.CSkip }
 ;
 

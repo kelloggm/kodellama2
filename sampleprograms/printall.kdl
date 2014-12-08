@@ -1,0 +1,9 @@
+print "Hello world!"
+print 5 > 2
+print 4 + 4
+let x be "Testing assignment..."
+print x
+let y be 6 > 7
+print y
+let z be 2 + 2
+print z

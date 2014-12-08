@@ -29,8 +29,10 @@ ocaml:
 	cp ocaml/main.ml .
 	cp ocaml/CoreString.ml .
 	mv *.mli ocaml/
-	python InfiniteLoops.py
+	mv ocaml/String.ml ocaml/CoqString.ml
+	mv ocaml/String.mli ocaml/CoqString.mli
+	python PostProcessor.py
 
 usable:
 	cd ocaml ;\
-	$(OCAMLC) -o Kodellama CoreString.ml Datatypes.mli Datatypes.ml Specif.mli Specif.ml Bool.mli Bool.ml BinNums.mli BinNums.ml Ring_theory.mli Ring_theory.ml Sumbool.mli Sumbool.ml Peano.mli Peano.ml BinPosDef.mli BinPosDef.ml BinPos.mli BinPos.ml BinNat.mli BinNat.ml BinInt.mli BinInt.ml ZArith_dec.mli ZArith_dec.ml Zeven.mli Zeven.ml Zbool.mli Zbool.ml QArith_base.mli QArith_base.ml EqNat.mli EqNat.ml Ascii.mli Ascii.ml String.mli String.ml Ident.mli Ident.ml Exp.mli Exp.ml Aexp.mli Aexp.ml Typ.mli Typ.ml Sigma.mli Sigma.ml Commands.mli Commands.ml Evals.mli Evals.ml BinStringToQ.mli BinStringToQ.ml parse.mli parse.ml lex.ml main.ml
+	$(OCAMLC) -o Kodellama CoreString.ml Datatypes.mli Datatypes.ml Specif.mli Specif.ml Bool.mli Bool.ml BinNums.mli BinNums.ml Ring_theory.mli Ring_theory.ml Sumbool.mli Sumbool.ml Peano.mli Peano.ml BinPosDef.mli BinPosDef.ml BinPos.mli BinPos.ml BinNat.mli BinNat.ml BinInt.mli BinInt.ml ZArith_dec.mli ZArith_dec.ml Zeven.mli Zeven.ml Zbool.mli Zbool.ml QArith_base.mli QArith_base.ml EqNat.mli EqNat.ml Ascii.mli Ascii.ml CoqString.mli CoqString.ml Ident.mli Ident.ml Exp.mli Exp.ml Aexp.mli Aexp.ml Typ.mli Typ.ml Sigma.mli Sigma.ml Commands.mli Commands.ml Evals.mli Evals.ml BinStringToQ.mli BinStringToQ.ml parse.mli parse.ml lex.ml main.ml

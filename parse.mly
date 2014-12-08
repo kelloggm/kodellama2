@@ -11,8 +11,8 @@ open BinStringToQ
 (* Adapted from ocaml FAQ *)
 let string_to_list str =
 	let rec exp i l =
-		if i < 0 then l else exp (i-1) ((CoreString.get str i) :: l) in
-	exp ((CoreString.length str) - 1) []
+		if i < 0 then l else exp (i-1) ((String.get str i) :: l) in
+	exp ((String.length str) - 1) []
 
 let convert_pair_to_q num denom =
 	let sign = if num > 0 then BinStringToQ.Coq_sPos else if num < 0 then BinStringToQ.Coq_sNeg else BinStringToQ.Coq_sZero in
@@ -23,9 +23,9 @@ let convert_pair_to_q num denom =
 
 let string_to_q str =
 	try
-		let ind = CoreString.index str '.' in
-		let denompow = (CoreString.length str) - ind - 1 in
-		let numerator = CoreString.concat "" [(CoreString.sub str 0 ind) ; (CoreString.sub str (ind + 1) ((CoreString.length str) - ind -1))] in
+		let ind = String.index str '.' in
+		let denompow = (String.length str) - ind - 1 in
+		let numerator = String.concat "" [(String.sub str 0 ind) ; (String.sub str (ind + 1) ((String.length str) - ind -1))] in
 		convert_pair_to_q (int_of_string numerator) (int_of_float ((float_of_int 10) ** (float_of_int denompow)))
 	with Not_found ->
 		convert_pair_to_q (int_of_string str) 1

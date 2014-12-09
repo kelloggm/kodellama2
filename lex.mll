@@ -57,7 +57,7 @@ rule initial = parse
   			}
     | ['\"']([^'\"''\n'])*['\"'] {
       		     let str = Lexing.lexeme lexbuf in
-		     print_string "STRING " ; STRING(str)
+		     print_string "STRING " ; STRING(String.sub str 1 ((String.length str) - 2))
 		     }
 		     
     | ['-']?['0'-'9']+(['.']['0'-'9']+)? {

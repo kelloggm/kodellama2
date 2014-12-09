@@ -129,19 +129,29 @@ expr : aexp				     { Exp.EAexp $1 }
 ;
 
 matchbody : END				     { Commands.Commands.MBNone }
-| WITH expr com matchbody		     { Commands.Commands.MBSome($2, $3, $4) }
+| SEQ END				     { Commands.Commands.MBNone }
+| WITH expr com matchbody		     { print_string "first with " ; Commands.Commands.MBSome($2, $3, $4) }
+| WITH expr com SEQ matchbody		     { print_string "second with " ; Commands.Commands.MBSome($2, $3, $5) }
+
 ;
 
-com : SKIP                                   { Commands.Commands.CSkip }
-| SET IDENTIFIER TO expr                     { Commands.Commands.CSet(string_to_list $2,$4) } 
-| com SEQ com                          	     { Commands.Commands.CSeq($1,$3) }
-| IF bexp THEN com ELSE com END              { Commands.Commands.CIf($2,$4,$6) }
-| IF bexp THEN com END			     { Commands.Commands.CIf($2,$4,Commands.Commands.CSkip) }
-| WHILE bexp DO com END                      { Commands.Commands.CWhile($2,$4) }
-| LET IDENTIFIER BE expr		     { Commands.Commands.CLet(string_to_list $2,$4) }
-| PRINT expr                                 { Commands.Commands.CPrint($2) }
-| REP aexp TIMES com END		     { Commands.Commands.CRepeat($2, $4) }
-| MATCH expr matchbody			     { Commands.Commands.CMatch($2, $3) }
-| EOF					     { Commands.Commands.CSkip }
+com : SKIP                                   { print_string "skip " ; Commands.Commands.CSkip }
+| SET IDENTIFIER TO expr                     { print_string "set " ; Commands.Commands.CSet(string_to_list $2,$4) } 
+| IF bexp THEN com ELSE com END              { print_string "if 1 " ; Commands.Commands.CIf($2,$4,$6) }
+| IF bexp THEN com END			     { print_string "if 2 " ; Commands.Commands.CIf($2,$4,Commands.Commands.CSkip) }
+| WHILE bexp DO com END                      { print_string "while 1 " ; Commands.Commands.CWhile($2,$4) }
+| WHILE bexp DO SEQ com END                  { print_string "while 2 " ;Commands.Commands.CWhile($2,$5) }
+| WHILE bexp DO SEQ com SEQ END              { print_string "while 3 " ;Commands.Commands.CWhile($2,$5) }
+| WHILE bexp DO com SEQ END                  { print_string "while 4 " ;Commands.Commands.CWhile($2,$4) }
+| LET IDENTIFIER BE expr		     { print_string "let " ; Commands.Commands.CLet(string_to_list $2,$4) }
+| PRINT expr                                 { print_string "print " ; Commands.Commands.CPrint($2) }
+| REP aexp TIMES com END		     { print_string "rep 1 " ; Commands.Commands.CRepeat($2, $4) }
+| REP aexp TIMES SEQ com END		     { print_string "rep 2 " ; Commands.Commands.CRepeat($2, $5) }
+| REP aexp TIMES SEQ com SEQ END	     { print_string "rep 3 " ; Commands.Commands.CRepeat($2, $5) }
+| REP aexp TIMES com SEQ END		     { print_string "rep 4 " ; Commands.Commands.CRepeat($2, $4) }
+| MATCH expr matchbody			     { print_string "match 1 " ; Commands.Commands.CMatch($2, $3) }
+| MATCH expr SEQ matchbody		     { print_string "match 2 " ; Commands.Commands.CMatch($2, $4) }
+| com SEQ com                          	     { print_string "seq " ; Commands.Commands.CSeq($1,$3) }
+| EOF					     { print_string "eof-skip " ; Commands.Commands.CSkip }
 ;
 

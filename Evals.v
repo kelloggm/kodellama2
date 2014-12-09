@@ -206,10 +206,13 @@ Fixpoint eval_command_inner (cmd: Command) (sigma: state) (n: nat): state :=
     | S n' => 
       match cmd with
         | CWhile b c =>
-          if eval_bexp b sigma 5 then
-            let s' := eval_command_inner c sigma n' in
+          let blit := eval_bexp b sigma 5 in
+          match blit with
+            | mk_bexp_lit true => 
+              let s' := eval_command_inner c sigma n' in
               eval_command_inner cmd s' n'
-          else sigma
+            | _ => sigma
+          end
         | CRepeat a c =>
           let a' := eval_aexp a sigma in
             match a' with

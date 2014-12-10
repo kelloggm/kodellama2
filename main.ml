@@ -31,17 +31,21 @@ in
   try
 	let line = ref (input_line stdin) in      
 	while true do
+	      print_string ("first sub: " ^ (trim !line) ^ "_____\n");
 	      if not (trim !line = "") then
-	      	 if not ((String.length (trim !line) >= 3) && (String.sub (trim !line) ((String.length !line) - 3) 3 = " do")) then
-		    if not ((String.length (trim !line) >= 7) && (String.sub (trim !line) ((String.length !line) - 7) 7 = " times:")) then
+	      	 if not ((String.length (trim !line) >= 3) && (String.sub (trim !line) ((String.length (trim !line)) - 3) 3 = " do")) then
+		    if not ((String.length (trim !line) >= 1) && (String.sub (trim !line) ((String.length (trim !line)) - 1) 1 = ":")) then
 		       line := !line ^ ";";	         
 	      stIn := (!stIn ^ !line ^ "\n");
 	      line := input_line stdin;
+	      print_string ("second sub: " ^ (trim !line) ^ "_____\n");
 	      if ((String.length (trim !line) >= 3) && (String.sub (trim !line) 0 3 = "end")) || ((String.length (trim !line) >= 4) && (String.sub (trim !line) 0 4 = "with")) then
-	      	    stIn := ((String.sub !stIn 0 ((String.length !stIn) - 2)) ^ "\n")
+	      	    if (String.length !stIn >= 2) then
+	      	       (print_string ("third sub: " ^ !stIn ^ "_____\n") ; stIn := ((String.sub !stIn 0 ((String.length !stIn) - 2)) ^ "\n"))
 	done; 
   with End_of_file -> () ;
 
+  print_string ("fourth sub: " ^ (trim !stIn) ^ "_____\n");
   if (String.get (trim !stIn) ((String.length (trim !stIn)) - 1) = ';') then stIn := (String.sub (trim !stIn) 0 ((String.length !stIn) - 1)); 
   
   let lexbuf = Lexing.from_string !stIn in

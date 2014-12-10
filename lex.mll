@@ -26,6 +26,7 @@ rule initial = parse
     | '*'    	       { print_string "MULT " ; MULT(!lineno) }
     | '/'      	       { print_string "DIV " ; DIV(!lineno) }
     | '^'      	       { print_string "EXP " ; EXP(!lineno) }
+    | ':'      	       { print_string "COLON " ; COLON(!lineno) }
     | "true"   	       { print_string "TRUE " ; TRUE(!lineno) }
     | "false"  	       { print_string "FALSE " ; FALSE(!lineno) }
     | "is"
@@ -52,7 +53,7 @@ rule initial = parse
     | "while"	       { print_string "WHILE " ; WHILE(!lineno) }
     | "do"	       { print_string "DO " ; DO(!lineno) }
     | "repeat"	       { print_string "REP " ; REP(!lineno) }
-    | "times:"	       { print_string "TIMES " ; TIMES(!lineno) }
+    | "times"	       { print_string "TIMES " ; TIMES(!lineno) }
     | '('	       { print_string "LPAREN " ; LPAREN(!lineno) }
     | ')'	       { print_string "RPAREN " ; RPAREN(!lineno) }
     | ['A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''_']*{

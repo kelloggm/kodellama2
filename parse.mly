@@ -49,6 +49,7 @@ let parse_error s = print_string ("There was a syntax error after line " ^ (stri
 %token <int> EXP
 %token <int> TRUE
 %token <int> FALSE
+%token <int> COLON
 %token <int> EQ
 %token <int> LT
 %token <int> LE
@@ -134,8 +135,8 @@ expr : aexp				     { Exp.EAexp $1 }
 
 matchbody : END				     { linenoError := $1; Commands.Commands.MBNone }
 | SEQ END				     { linenoError := $2; Commands.Commands.MBNone }
-| WITH expr com matchbody		     { linenoError := $1; print_string "first with " ; Commands.Commands.MBSome($2, $3, $4) }
-| WITH expr com SEQ matchbody		     { linenoError := $1; print_string "second with " ; Commands.Commands.MBSome($2, $3, $5) }
+| WITH expr COLON com matchbody		     { linenoError := $3; print_string "first with " ; Commands.Commands.MBSome($2, $4, $5) }
+| WITH expr COLON com SEQ matchbody		     { linenoError := $3; print_string "second with " ; Commands.Commands.MBSome($2, $4, $6) }
 
 ;
 
@@ -149,10 +150,10 @@ com : SKIP                                   { linenoError := $1; print_string "
 | WHILE bexp DO com SEQ END                  { linenoError := $6; print_string "while 4 " ;Commands.Commands.CWhile($2,$4) }
 | LET IDENTIFIER BE expr		     { linenoError := $3; print_string "let " ; Commands.Commands.CLet(string_to_list $2,$4) }
 | PRINT expr                                 { linenoError := $1; print_string "print " ; Commands.Commands.CPrint($2) }
-| REP aexp TIMES com END		     { linenoError := $5; print_string "rep 1 " ; Commands.Commands.CRepeat($2, $4) }
-| REP aexp TIMES SEQ com END		     { linenoError := $6; print_string "rep 2 " ; Commands.Commands.CRepeat($2, $5) }
-| REP aexp TIMES SEQ com SEQ END	     { linenoError := $7; print_string "rep 3 " ; Commands.Commands.CRepeat($2, $5) }
-| REP aexp TIMES com SEQ END		     { linenoError := $6; print_string "rep 4 " ; Commands.Commands.CRepeat($2, $4) }
+| REP aexp TIMES COLON com END		     { linenoError := $6; print_string "rep 1 " ; Commands.Commands.CRepeat($2, $5) }
+| REP aexp TIMES COLON SEQ com END		     { linenoError := $7; print_string "rep 2 " ; Commands.Commands.CRepeat($2, $6) }
+| REP aexp TIMES COLON SEQ com SEQ END	     { linenoError := $8; print_string "rep 3 " ; Commands.Commands.CRepeat($2, $6) }
+| REP aexp TIMES COLON com SEQ END		     { linenoError := $7; print_string "rep 4 " ; Commands.Commands.CRepeat($2, $5) }
 | MATCH expr matchbody			     { linenoError := $1; print_string "match 1 " ; Commands.Commands.CMatch($2, $3) }
 | MATCH expr SEQ matchbody		     { linenoError := $1; print_string "match 2 " ; Commands.Commands.CMatch($2, $4) }
 | com SEQ com                          	     { linenoError := $2; print_string "seq " ; Commands.Commands.CSeq($1,$3) }

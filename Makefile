@@ -3,7 +3,7 @@ OCAMLC  = ocamlopt
 
 .SUFFIXES: .v .vo
 
-all: coq
+all: rebuild
 
 rebuild: clean coq ocaml usable
 

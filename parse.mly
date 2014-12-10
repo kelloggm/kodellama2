@@ -30,47 +30,51 @@ let string_to_q str =
 	with Not_found ->
 		convert_pair_to_q (int_of_string str) 1
 
+let linenoError = ref 0
+
+let parse_error s = print_string ("There was a syntax error after line " ^ (string_of_int !linenoError) ^ "\n")
+
 %}
 
 
 %token <string>         IDENTIFIER
 %token <string>         NUMBER
-%token <string> 	STRING
+%token <string> 	     STRING
 
-%token PLUS
-%token MINUS
-%token MULT
-%token DIV
-%token SEQ
-%token EXP
-%token TRUE
-%token FALSE
-%token EQ
-%token LT
-%token LE
-%token GT
-%token GE
-%token SKIP
-%token SET
-%token TO
-%token LET
-%token BE
-%token IF
-%token THEN
-%token ELSE
-%token MATCH
-%token WITH
-%token END
-%token PRINT
-%token WHILE
-%token DO
-%token REP
-%token TIMES
-%token RPAREN
-%token LPAREN
-%token AND
-%token OR
-%token NOT
+%token <int> PLUS 
+%token <int> MINUS
+%token <int> MULT
+%token <int> DIV 
+%token <int> SEQ
+%token <int> EXP
+%token <int> TRUE
+%token <int> FALSE
+%token <int> EQ
+%token <int> LT
+%token <int> LE
+%token <int> GT
+%token <int> GE
+%token <int> SKIP
+%token <int> SET
+%token <int> TO
+%token <int> LET
+%token <int> BE
+%token <int> IF
+%token <int> THEN
+%token <int> ELSE
+%token <int> MATCH
+%token <int> WITH
+%token <int> END
+%token <int> PRINT
+%token <int> WHILE
+%token <int> DO
+%token <int> REP
+%token <int> TIMES
+%token <int> RPAREN
+%token <int> LPAREN
+%token <int> AND
+%token <int> OR
+%token <int> NOT
 %token EOF
 
 %start com
@@ -87,35 +91,35 @@ let string_to_q str =
 %%
 
 uexp: IDENTIFIER			     { Exp.Uexpid(string_to_list $1) }
-| IDENTIFIER PLUS expr			     { Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
+| IDENTIFIER PLUS expr			     { linenoError := $2; Exp.Uexpplus(Exp.Uexpid (string_to_list $1), $3) }
 ;
 
 sexp: STRING				     { Exp.SLit(Exp.Coq_mk_sexp_lit (string_to_list $1)) }
 | IDENTIFIER				     { Exp.SVar(string_to_list $1) }
-| sexp PLUS sexp			     { Exp.SConcat($1, $3) }
+| sexp PLUS sexp			     { linenoError := $2; Exp.SConcat($1, $3) }
 ;
 
-bexp : TRUE				     { Exp.BLit (Exp.Coq_mk_bexp_lit true) }
-| FALSE					     { Exp.BLit (Exp.Coq_mk_bexp_lit false) }
-| bexp AND bexp				     { Exp.BAnd($1, $3) }
-| bexp OR bexp				     { Exp.BOr($1, $3) }
-| NOT bexp				     { Exp.BNot($2) }
-| expr EQ expr				     { Exp.BEq($1, $3) }
-| aexp LT aexp				     { Exp.BLt($1, $3) }
-| aexp LE aexp				     { Exp.BLe($1, $3) }
-| aexp GT aexp				     { Exp.BGt($1, $3) }
-| aexp GE aexp				     { Exp.BGe($1, $3) }
+bexp : TRUE				     { linenoError := $1; Exp.BLit (Exp.Coq_mk_bexp_lit true) }
+| FALSE					     { linenoError := $1; Exp.BLit (Exp.Coq_mk_bexp_lit false) }
+| bexp AND bexp				     { linenoError := $2; Exp.BAnd($1, $3) }
+| bexp OR bexp				     { linenoError := $2; Exp.BOr($1, $3) }
+| NOT bexp				     { linenoError := $1; Exp.BNot($2) }
+| expr EQ expr				     { linenoError := $2; Exp.BEq($1, $3) }
+| aexp LT aexp				     { linenoError := $2; Exp.BLt($1, $3) }
+| aexp LE aexp				     { linenoError := $2; Exp.BLe($1, $3) }
+| aexp GT aexp				     { linenoError := $2; Exp.BGt($1, $3) }
+| aexp GE aexp				     { linenoError := $2; Exp.BGe($1, $3) }
 | IDENTIFIER				     { Exp.BVar(string_to_list $1) }
-| LPAREN bexp RPAREN			     { $2 }
+| LPAREN bexp RPAREN			     { linenoError := $3; $2 }
 ;
 
 aexp : IDENTIFIER			     { Exp.AVar(string_to_list $1) }
-| aexp PLUS aexp 			     { Exp.APlus($1, $3) }
-| aexp MINUS aexp 			     { Exp.AMinus($1, $3) }
-| aexp MULT aexp 			     { Exp.AMult($1, $3) }
-| aexp DIV aexp 			     { Exp.ADiv($1, $3) }
-| aexp EXP aexp 			     { Exp.AExp($1, $3) }
-| LPAREN aexp RPAREN			     { $2 }
+| aexp PLUS aexp 			     { linenoError := $2; Exp.APlus($1, $3) }
+| aexp MINUS aexp 			     { linenoError := $2; Exp.AMinus($1, $3) }
+| aexp MULT aexp 			     { linenoError := $2; Exp.AMult($1, $3) }
+| aexp DIV aexp 			     { linenoError := $2; Exp.ADiv($1, $3) }
+| aexp EXP aexp 			     { linenoError := $2; Exp.AExp($1, $3) }
+| LPAREN aexp RPAREN			     { linenoError := $3; $2 }
 | NUMBER      				     { let myq = string_to_q $1 in
 									match myq with
 										| Some q -> Exp.ALit(Exp.Coq_mk_aexp_lit q)
@@ -128,30 +132,30 @@ expr : aexp				     { Exp.EAexp $1 }
 | uexp				     	 { Exp.EUexp $1 }
 ;
 
-matchbody : END				     { Commands.Commands.MBNone }
-| SEQ END				     { Commands.Commands.MBNone }
-| WITH expr com matchbody		     { print_string "first with " ; Commands.Commands.MBSome($2, $3, $4) }
-| WITH expr com SEQ matchbody		     { print_string "second with " ; Commands.Commands.MBSome($2, $3, $5) }
+matchbody : END				     { linenoError := $1; Commands.Commands.MBNone }
+| SEQ END				     { linenoError := $2; Commands.Commands.MBNone }
+| WITH expr com matchbody		     { linenoError := $1; print_string "first with " ; Commands.Commands.MBSome($2, $3, $4) }
+| WITH expr com SEQ matchbody		     { linenoError := $1; print_string "second with " ; Commands.Commands.MBSome($2, $3, $5) }
 
 ;
 
-com : SKIP                                   { print_string "skip " ; Commands.Commands.CSkip }
-| SET IDENTIFIER TO expr                     { print_string "set " ; Commands.Commands.CSet(string_to_list $2,$4) } 
-| IF bexp THEN com ELSE com END              { print_string "if 1 " ; Commands.Commands.CIf($2,$4,$6) }
-| IF bexp THEN com END			     { print_string "if 2 " ; Commands.Commands.CIf($2,$4,Commands.Commands.CSkip) }
-| WHILE bexp DO com END                      { print_string "while 1 " ; Commands.Commands.CWhile($2,$4) }
-| WHILE bexp DO SEQ com END                  { print_string "while 2 " ;Commands.Commands.CWhile($2,$5) }
-| WHILE bexp DO SEQ com SEQ END              { print_string "while 3 " ;Commands.Commands.CWhile($2,$5) }
-| WHILE bexp DO com SEQ END                  { print_string "while 4 " ;Commands.Commands.CWhile($2,$4) }
-| LET IDENTIFIER BE expr		     { print_string "let " ; Commands.Commands.CLet(string_to_list $2,$4) }
-| PRINT expr                                 { print_string "print " ; Commands.Commands.CPrint($2) }
-| REP aexp TIMES com END		     { print_string "rep 1 " ; Commands.Commands.CRepeat($2, $4) }
-| REP aexp TIMES SEQ com END		     { print_string "rep 2 " ; Commands.Commands.CRepeat($2, $5) }
-| REP aexp TIMES SEQ com SEQ END	     { print_string "rep 3 " ; Commands.Commands.CRepeat($2, $5) }
-| REP aexp TIMES com SEQ END		     { print_string "rep 4 " ; Commands.Commands.CRepeat($2, $4) }
-| MATCH expr matchbody			     { print_string "match 1 " ; Commands.Commands.CMatch($2, $3) }
-| MATCH expr SEQ matchbody		     { print_string "match 2 " ; Commands.Commands.CMatch($2, $4) }
-| com SEQ com                          	     { print_string "seq " ; Commands.Commands.CSeq($1,$3) }
+com : SKIP                                   { linenoError := $1; print_string "skip " ; Commands.Commands.CSkip }
+| SET IDENTIFIER TO expr                     { linenoError := $3; print_string "set " ; Commands.Commands.CSet(string_to_list $2,$4) } 
+| IF bexp THEN com ELSE com END              { linenoError := $7; print_string "if 1 " ; Commands.Commands.CIf($2,$4,$6) }
+| IF bexp THEN com END			     { linenoError := $5; print_string "if 2 " ; Commands.Commands.CIf($2,$4,Commands.Commands.CSkip) }
+| WHILE bexp DO com END                      { linenoError := $5; print_string "while 1 " ; Commands.Commands.CWhile($2,$4) }
+| WHILE bexp DO SEQ com END                  { linenoError := $6; print_string "while 2 " ;Commands.Commands.CWhile($2,$5) }
+| WHILE bexp DO SEQ com SEQ END              { linenoError := $7; print_string "while 3 " ;Commands.Commands.CWhile($2,$5) }
+| WHILE bexp DO com SEQ END                  { linenoError := $6; print_string "while 4 " ;Commands.Commands.CWhile($2,$4) }
+| LET IDENTIFIER BE expr		     { linenoError := $3; print_string "let " ; Commands.Commands.CLet(string_to_list $2,$4) }
+| PRINT expr                                 { linenoError := $1; print_string "print " ; Commands.Commands.CPrint($2) }
+| REP aexp TIMES com END		     { linenoError := $5; print_string "rep 1 " ; Commands.Commands.CRepeat($2, $4) }
+| REP aexp TIMES SEQ com END		     { linenoError := $6; print_string "rep 2 " ; Commands.Commands.CRepeat($2, $5) }
+| REP aexp TIMES SEQ com SEQ END	     { linenoError := $7; print_string "rep 3 " ; Commands.Commands.CRepeat($2, $5) }
+| REP aexp TIMES com SEQ END		     { linenoError := $6; print_string "rep 4 " ; Commands.Commands.CRepeat($2, $4) }
+| MATCH expr matchbody			     { linenoError := $1; print_string "match 1 " ; Commands.Commands.CMatch($2, $3) }
+| MATCH expr SEQ matchbody		     { linenoError := $1; print_string "match 2 " ; Commands.Commands.CMatch($2, $4) }
+| com SEQ com                          	     { linenoError := $2; print_string "seq " ; Commands.Commands.CSeq($1,$3) }
 | EOF					     { print_string "eof-skip " ; Commands.Commands.CSkip }
 ;
 

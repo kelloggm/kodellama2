@@ -6,51 +6,55 @@
 {
 open Parse
 open Printf
+
+let lineno = ref 1
+
 }
 
 
 
-let blank = [' ' '\012' '\t' '\n']
+let blank = [' ' '\012' '\t']
 
 (* this is "program" in the grammar on the whiteboard *)
 rule initial = parse
     "//"     { endline lexbuf }
     | blank  { initial lexbuf }
-    | ';'     	       { print_string "SEQ " ; SEQ }
-    | '+'      	       { print_string "PLUS " ; PLUS }
-    | '-'     	       { print_string "MINUS " ; MINUS }
-    | '*'    	       { print_string "MULT " ; MULT }
-    | '/'      	       { print_string "DIV " ; DIV }
-    | '^'      	       { print_string "EXP " ; EXP }
-    | "true"   	       { print_string "TRUE " ; TRUE }
-    | "false"  	       { print_string "FALSE " ; FALSE }
+    | '\n'     	       { lineno := !lineno + 1 ; initial lexbuf }
+    | ';'     	       { print_string "SEQ " ; SEQ(!lineno) }
+    | '+'      	       { print_string "PLUS " ; PLUS(!lineno) }
+    | '-'     	       { print_string "MINUS " ; MINUS(!lineno) }
+    | '*'    	       { print_string "MULT " ; MULT(!lineno) }
+    | '/'      	       { print_string "DIV " ; DIV(!lineno) }
+    | '^'      	       { print_string "EXP " ; EXP(!lineno) }
+    | "true"   	       { print_string "TRUE " ; TRUE(!lineno) }
+    | "false"  	       { print_string "FALSE " ; FALSE(!lineno) }
     | "is"
-    | '='      	       { print_string "EQ " ; EQ }
-    | '<'	       { print_string "LT " ; LT }
-    | '>'	       { print_string "GT " ; GT }
-    | ">="	       { print_string "GE " ; GE }
-    | "<="	       { print_string "LE " ; LE }
-    | "and"	       { print_string "AND " ; AND }
-    | "or"	       { print_string "OR " ; OR }
-    | "not"	       { print_string "NOT " ; NOT }
-    | "skip"	       { print_string "SKIP " ; SKIP }
-    | "set"	       { print_string "SET " ; SET }
-    | "to"	       { print_string "TO " ; TO }
-    | "let"	       { print_string "LET " ; LET }
-    | "be"	       { print_string "BE " ; BE }
-    | "if"	       { print_string "IF " ; IF }
-    | "then"	       { print_string "THEN " ; THEN }
-    | "else"	       { print_string "ELSE " ; ELSE }
-    | "print"	       { print_string "PRINT " ; PRINT }
-    | "match"	       { print_string "MATCH " ; MATCH }
-    | "with"	       { print_string "WITH " ; WITH }
-    | "end"	       { print_string "END " ; END }
-    | "while"	       { print_string "WHILE " ; WHILE }
-    | "do"	       { print_string "DO " ; DO }
-    | "repeat"	       { print_string "REP " ; REP }
-    | "times:"	       { print_string "TIMES " ; TIMES }
-    | '('	       { print_string "LPAREN " ; LPAREN }
-    | ')'	       { print_string "RPAREN " ; RPAREN }
+    | '='      	       { print_string "EQ " ; EQ(!lineno) }
+    | '<'	       { print_string "LT " ; LT(!lineno) }
+    | '>'	       { print_string "GT " ; GT(!lineno) }
+    | ">="	       { print_string "GE " ; GE(!lineno) }
+    | "<="	       { print_string "LE " ; LE(!lineno) }
+    | "and"	       { print_string "AND " ; AND(!lineno) }
+    | "or"	       { print_string "OR " ; OR(!lineno) }
+    | "not"	       { print_string "NOT " ; NOT(!lineno) }
+    | "skip"	       { print_string "SKIP " ; SKIP(!lineno) }
+    | "set"	       { print_string "SET " ; SET(!lineno) }
+    | "to"	       { print_string "TO " ; TO(!lineno) }
+    | "let"	       { print_string "LET " ; LET(!lineno) }
+    | "be"	       { print_string "BE " ; BE(!lineno) }
+    | "if"	       { print_string "IF " ; IF(!lineno) }
+    | "then"	       { print_string "THEN " ; THEN(!lineno) }
+    | "else"	       { print_string "ELSE " ; ELSE(!lineno) }
+    | "print"	       { print_string "PRINT " ; PRINT(!lineno) }
+    | "match"	       { print_string "MATCH " ; MATCH(!lineno) }
+    | "with"	       { print_string "WITH " ; WITH(!lineno) }
+    | "end"	       { print_string "END " ; END(!lineno) }
+    | "while"	       { print_string "WHILE " ; WHILE(!lineno) }
+    | "do"	       { print_string "DO " ; DO(!lineno) }
+    | "repeat"	       { print_string "REP " ; REP(!lineno) }
+    | "times:"	       { print_string "TIMES " ; TIMES(!lineno) }
+    | '('	       { print_string "LPAREN " ; LPAREN(!lineno) }
+    | ')'	       { print_string "RPAREN " ; RPAREN(!lineno) }
     | ['A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''_']*{
 			let str = Lexing.lexeme lexbuf in 
   			print_string "IDENTIFIER " ; IDENTIFIER(str)
@@ -66,7 +70,7 @@ rule initial = parse
 					     }
 
     | _       {
-      	      Printf.printf ("You have a character Kodellama does not know : '%s'\n") (Lexing.lexeme lexbuf) ;
+      	      Printf.printf ("You have a character Kodellama does not know on line %d : '%s'\n") (!lineno) (Lexing.lexeme lexbuf) ;
   	      exit 1 
 	      }					     
 
@@ -74,6 +78,6 @@ rule initial = parse
 
 
 and endline = parse
-    '\n'    { initial lexbuf}
+    '\n'    { lineno := !lineno + 1 ; initial lexbuf}
     | _     { endline lexbuf}
     | eof   { EOF }

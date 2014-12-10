@@ -1,11 +1,11 @@
 //Set this to the place in the fib sequence to get
-let place be 10;
-set a to 0;
-set b to 1;
+let place be 10
+set a to 0
+set b to 1
 repeat place times:
-	set olda to a;
-	set a to b;
+	set olda to a
+	set a to b
 	set b to olda + b
-end;
-print "The number in that spot in the fib sequence is";
-print a;
+end
+print "The number in that spot in the fib sequence is"
+print a

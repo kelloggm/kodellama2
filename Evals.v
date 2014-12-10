@@ -161,6 +161,36 @@ with exp_is_equal (e1 e2: Exp) (sigma: state) (n: nat): BexpLit :=
     | S n', EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma n'
     | S n', ESexp s1, ESexp s2 => sexp_is_equal s1 s2 sigma
     | S n', EUexp u1, EUexp u2 => uexp_is_equal u1 u2
+    | S n', EUexp (Uexpid i), EAexp a2 =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_aexp alit) => aexplit_is_equal alit (eval_aexp a2 sigma)
+        | _ => mk_bexp_lit false
+      end
+    | S n', EAexp a2, EUexp (Uexpid i) =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_aexp alit) => aexplit_is_equal alit (eval_aexp a2 sigma)
+        | _ => mk_bexp_lit false
+      end
+    | S n', EUexp (Uexpid i), EBexp b2 =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_bexp blit) => bexplit_is_equal blit (eval_bexp b2 sigma n')
+        | _ => mk_bexp_lit false
+      end
+    | S n', EBexp b2, EUexp (Uexpid i) =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_bexp blit) => bexplit_is_equal blit (eval_bexp b2 sigma n')
+        | _ => mk_bexp_lit false
+      end
+    | S n', EUexp (Uexpid i), ESexp s2 =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_sexp slit) => sexplit_is_equal slit (eval_sexp s2 sigma)
+        | _ => mk_bexp_lit false
+      end
+    | S n', ESexp s2, EUexp (Uexpid i) =>
+      match (sigma i) with
+        | mk_typ  _ (mk_explit_from_sexp slit) => sexplit_is_equal slit (eval_sexp s2 sigma)
+        | _ => mk_bexp_lit false
+      end
     | _, _, _ => mk_bexp_lit false (* TODO? This gives false even if one argument evaluates to an error *)
   end
 

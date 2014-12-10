@@ -1,26 +1,26 @@
 // Set this number to the number you want to run the collatz conjecture of
 // 0, 1, 7, 2, 5, 8, 16, 3, 19, 6, 14, 9, 9, 17, 17, 4, 12, 20, 20, 7, 7, 15, 15, 10, 23, 10, 111, 18, 18, 18, 106, 5, 26, 13, 13, 21, 21, 21, 34, 8, 109, 8, 29, 16, 16, 16, 104, 11, 24, 24,
-set num to 9
+set num to 27
 set steps to 0
-set rep to 1
+set rep to true
 // Let's test match statements and if statements!
-while rep > 0 do
-	match num > 1
-		with false:
-			set rep to 0
-		with true:
+while rep is true do
+	match num
+		with 1:
+			set rep to false
+		with num:
 			// We dont have modular division yet so do it here
 			set remainder to num
-			while remainder > 0 do
+			while remainder > 1 do
 				set remainder to remainder - 2
 			end
-			if remainder < 0 then set remainder to 1 end
-			match remainder > 0
-				with false: set num to num / 2
-				with true: set num to 3*num + 1
+			match remainder
+				with 0: set num to num / 2
+				with 1: set num to 3*num + 1
 			end
 			set steps to steps + 1
 	end
+	print steps
 end
 print ""
 print ""

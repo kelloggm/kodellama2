@@ -9,6 +9,11 @@ open Printf
 
 let lineno = ref 1
 
+let debug = ref false
+
+let print_string_debug s =
+    if !debug then print_string s else ()
+
 }
 
 
@@ -20,55 +25,55 @@ rule initial = parse
     "//"     { endline lexbuf }
     | blank  { initial lexbuf }
     | '\n'     	       { lineno := !lineno + 1 ; initial lexbuf }
-    | ';'     	       { print_string "SEQ " ; SEQ(!lineno) }
-    | '+'      	       { print_string "PLUS " ; PLUS(!lineno) }
-    | '-'     	       { print_string "MINUS " ; MINUS(!lineno) }
-    | '*'    	       { print_string "MULT " ; MULT(!lineno) }
-    | '/'      	       { print_string "DIV " ; DIV(!lineno) }
-    | '^'      	       { print_string "EXP " ; EXP(!lineno) }
-    | '%'	       { print_string "MOD" ; MOD(!lineno) }
-    | ':'      	       { print_string "COLON " ; COLON(!lineno) }
-    | "true"   	       { print_string "TRUE " ; TRUE(!lineno) }
-    | "false"  	       { print_string "FALSE " ; FALSE(!lineno) }
+    | ';'     	       { print_string_debug "SEQ " ; SEQ(!lineno) }
+    | '+'      	       { print_string_debug "PLUS " ; PLUS(!lineno) }
+    | '-'     	       { print_string_debug "MINUS " ; MINUS(!lineno) }
+    | '*'    	       { print_string_debug "MULT " ; MULT(!lineno) }
+    | '/'      	       { print_string_debug "DIV " ; DIV(!lineno) }
+    | '^'      	       { print_string_debug "EXP " ; EXP(!lineno) }
+    | '%'	       { print_string_debug "MOD" ; MOD(!lineno) }
+    | ':'      	       { print_string_debug "COLON " ; COLON(!lineno) }
+    | "true"   	       { print_string_debug "TRUE " ; TRUE(!lineno) }
+    | "false"  	       { print_string_debug "FALSE " ; FALSE(!lineno) }
     | "is"
-    | '='      	       { print_string "EQ " ; EQ(!lineno) }
-    | '<'	       { print_string "LT " ; LT(!lineno) }
-    | '>'	       { print_string "GT " ; GT(!lineno) }
-    | ">="	       { print_string "GE " ; GE(!lineno) }
-    | "<="	       { print_string "LE " ; LE(!lineno) }
-    | "and"	       { print_string "AND " ; AND(!lineno) }
-    | "or"	       { print_string "OR " ; OR(!lineno) }
-    | "not"	       { print_string "NOT " ; NOT(!lineno) }
-    | "skip"	       { print_string "SKIP " ; SKIP(!lineno) }
-    | "set"	       { print_string "SET " ; SET(!lineno) }
-    | "to"	       { print_string "TO " ; TO(!lineno) }
-    | "let"	       { print_string "LET " ; LET(!lineno) }
-    | "be"	       { print_string "BE " ; BE(!lineno) }
-    | "if"	       { print_string "IF " ; IF(!lineno) }
-    | "then"	       { print_string "THEN " ; THEN(!lineno) }
-    | "else"	       { print_string "ELSE " ; ELSE(!lineno) }
-    | "print"	       { print_string "PRINT " ; PRINT(!lineno) }
-    | "match"	       { print_string "MATCH " ; MATCH(!lineno) }
-    | "with"	       { print_string "WITH " ; WITH(!lineno) }
-    | "end"	       { print_string "END " ; END(!lineno) }
-    | "while"	       { print_string "WHILE " ; WHILE(!lineno) }
-    | "do"	       { print_string "DO " ; DO(!lineno) }
-    | "repeat"	       { print_string "REP " ; REP(!lineno) }
-    | "times"	       { print_string "TIMES " ; TIMES(!lineno) }
-    | '('	       { print_string "LPAREN " ; LPAREN(!lineno) }
-    | ')'	       { print_string "RPAREN " ; RPAREN(!lineno) }
+    | '='      	       { print_string_debug "EQ " ; EQ(!lineno) }
+    | '<'	       { print_string_debug "LT " ; LT(!lineno) }
+    | '>'	       { print_string_debug "GT " ; GT(!lineno) }
+    | ">="	       { print_string_debug "GE " ; GE(!lineno) }
+    | "<="	       { print_string_debug "LE " ; LE(!lineno) }
+    | "and"	       { print_string_debug "AND " ; AND(!lineno) }
+    | "or"	       { print_string_debug "OR " ; OR(!lineno) }
+    | "not"	       { print_string_debug "NOT " ; NOT(!lineno) }
+    | "skip"	       { print_string_debug "SKIP " ; SKIP(!lineno) }
+    | "set"	       { print_string_debug "SET " ; SET(!lineno) }
+    | "to"	       { print_string_debug "TO " ; TO(!lineno) }
+    | "let"	       { print_string_debug "LET " ; LET(!lineno) }
+    | "be"	       { print_string_debug "BE " ; BE(!lineno) }
+    | "if"	       { print_string_debug "IF " ; IF(!lineno) }
+    | "then"	       { print_string_debug "THEN " ; THEN(!lineno) }
+    | "else"	       { print_string_debug "ELSE " ; ELSE(!lineno) }
+    | "print"	       { print_string_debug "PRINT " ; PRINT(!lineno) }
+    | "match"	       { print_string_debug "MATCH " ; MATCH(!lineno) }
+    | "with"	       { print_string_debug "WITH " ; WITH(!lineno) }
+    | "end"	       { print_string_debug "END " ; END(!lineno) }
+    | "while"	       { print_string_debug "WHILE " ; WHILE(!lineno) }
+    | "do"	       { print_string_debug "DO " ; DO(!lineno) }
+    | "repeat"	       { print_string_debug "REP " ; REP(!lineno) }
+    | "times"	       { print_string_debug "TIMES " ; TIMES(!lineno) }
+    | '('	       { print_string_debug "LPAREN " ; LPAREN(!lineno) }
+    | ')'	       { print_string_debug "RPAREN " ; RPAREN(!lineno) }
     | ['A'-'Z''a'-'z''_']['0'-'9''A'-'Z''a'-'z''_']*{
 			let str = Lexing.lexeme lexbuf in 
-  			print_string "IDENTIFIER " ; IDENTIFIER(str)
+  			print_string_debug "IDENTIFIER " ; IDENTIFIER(str)
   			}
     | ['\"']([^'\"''\n'])*['\"'] {
       		     let str = Lexing.lexeme lexbuf in
-		     print_string "STRING " ; STRING(String.sub str 1 ((String.length str) - 2))
+		     print_string_debug "STRING " ; STRING(String.sub str 1 ((String.length str) - 2))
 		     }
 		     
     | ['-']?['0'-'9']+(['.']['0'-'9']+)? {
       					     let str = Lexing.lexeme lexbuf in
-					     print_string "NUMBER " ; NUMBER(str)
+					     print_string_debug "NUMBER " ; NUMBER(str)
 					     }
 
     | _       {
@@ -76,7 +81,7 @@ rule initial = parse
   	      exit 1 
 	      }					     
 
-    | eof		{ print_string "EOF " ; EOF }
+    | eof		{ print_string_debug "EOF " ; EOF }
 
 
 and endline = parse

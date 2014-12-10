@@ -1,6 +1,6 @@
 // Set this number to the number you want to run the collatz conjecture of
 // 0, 1, 7, 2, 5, 8, 16, 3, 19, 6, 14, 9, 9, 17, 17, 4, 12, 20, 20, 7, 7, 15, 15, 10, 23, 10, 111, 18, 18, 18, 106, 5, 26, 13, 13, 21, 21, 21, 34, 8, 109, 8, 29, 16, 16, 16, 104, 11, 24, 24,
-set num to 27
+set num to 9
 set steps to 0
 set rep to true
 // Let's test match statements and if statements!
@@ -20,7 +20,6 @@ while rep is true do
 			end
 			set steps to steps + 1
 	end
-	print steps
 end
 print ""
 print ""

@@ -32,6 +32,7 @@ with Aexp :=
   | APlus : Aexp -> Aexp -> Aexp
   | AMinus : Aexp -> Aexp -> Aexp
   | AMult : Aexp -> Aexp -> Aexp
+  | AMod : Aexp -> Aexp -> Aexp
   | ADiv : Aexp -> Aexp -> Aexp
   | AExp : Aexp -> Aexp -> Aexp
   | ANeg : Aexp -> Aexp

@@ -30,6 +30,14 @@ Definition div_aexplit (a b : AexpLit) :=
     | _, _ => aexp_error
   end.
 
+Definition mod_aexplit ( a b : AexpLit ) :=
+  match a,b with
+    | mk_aexp_lit q, mk_aexp_lit p => 
+       if Qeq_bool p (Qmake 0 1) then aexp_error else mk_aexp_lit (Qmake 0 1) 
+    | _, _ => aexp_error
+ 
+  end.
+
 Definition exp_aexplit (a b : AexpLit) := mk_aexp_lit (Qmake 1 1). (* exponentiation...seems hard. We'll get to it later *)
 
 Definition neg_aexplit (a : AexpLit) := 

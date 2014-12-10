@@ -47,6 +47,7 @@ let parse_error s = print_string ("There was a syntax error after line " ^ (stri
 %token <int> DIV 
 %token <int> SEQ
 %token <int> EXP
+%token <int> MOD
 %token <int> TRUE
 %token <int> FALSE
 %token <int> COLON
@@ -120,6 +121,7 @@ aexp : IDENTIFIER			     { Exp.AVar(string_to_list $1) }
 | aexp MULT aexp 			     { linenoError := $2; Exp.AMult($1, $3) }
 | aexp DIV aexp 			     { linenoError := $2; Exp.ADiv($1, $3) }
 | aexp EXP aexp 			     { linenoError := $2; Exp.AExp($1, $3) }
+| aexp MOD aexp 			     { linenoError := $2; Exp.AMod($1, $3) }
 | LPAREN aexp RPAREN			     { linenoError := $3; $2 }
 | NUMBER      				     { let myq = string_to_q $1 in
 									match myq with

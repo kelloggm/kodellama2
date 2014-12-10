@@ -16,6 +16,7 @@ Fixpoint eval_aexp (a : Aexp) (sigma : state) :=
     | AMult b c => mult_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
     | ADiv b c => div_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
     | AExp b c => exp_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
+    | AMod b c => mod_aexplit (eval_aexp b sigma) (eval_aexp c sigma)
     | ANeg b => neg_aexplit (eval_aexp b sigma)
     | AVar i =>
       match (sigma i) with

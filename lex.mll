@@ -26,6 +26,7 @@ rule initial = parse
     | '*'    	       { print_string "MULT " ; MULT(!lineno) }
     | '/'      	       { print_string "DIV " ; DIV(!lineno) }
     | '^'      	       { print_string "EXP " ; EXP(!lineno) }
+    | '%'	       { print_string "MOD" ; MOD(!lineno) }
     | ':'      	       { print_string "COLON " ; COLON(!lineno) }
     | "true"   	       { print_string "TRUE " ; TRUE(!lineno) }
     | "false"  	       { print_string "FALSE " ; FALSE(!lineno) }

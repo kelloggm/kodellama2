@@ -156,6 +156,6 @@ com : SKIP                                   { linenoError := $1; print_string "
 | MATCH expr matchbody			     { linenoError := $1; print_string "match 1 " ; Commands.Commands.CMatch($2, $3) }
 | MATCH expr SEQ matchbody		     { linenoError := $1; print_string "match 2 " ; Commands.Commands.CMatch($2, $4) }
 | com SEQ com                          	     { linenoError := $2; print_string "seq " ; Commands.Commands.CSeq($1,$3) }
-| EOF					     { print_string "eof-skip " ; Commands.Commands.CSkip }
+| EOF				     { print_string "eof-skip " ; Commands.Commands.CSkip }
 ;
 

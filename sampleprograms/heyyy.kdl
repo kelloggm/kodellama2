@@ -1,8 +1,8 @@
 // Set this number to the number of ys we want
-set ys to 5
-set str to "he"
+set ys to 5;
+set str to "he";
 while ys > 0 do
-	set str to str + "y"
+	set str to str + "y";
 	set ys to ys - 1
-end
-print str
+end;
+print str;

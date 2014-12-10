@@ -38,6 +38,43 @@ Definition aexplit_is_equal (e1 e2: AexpLit): BexpLit :=
 Definition aexp_is_equal (e1 e2: Aexp) (sigma: state): BexpLit :=
   aexplit_is_equal (eval_aexp e1 sigma) (eval_aexp e2 sigma).
 
+Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
+  match e with
+    | SLit s => s
+    | SConcat s1 s2 =>
+      let s1eval := eval_sexp s1 sigma in
+      let s2eval := eval_sexp s2 sigma in
+        match s1eval, s2eval with
+          | sexp_error, _ => sexp_error
+          | _, sexp_error => sexp_error
+          | mk_sexp_lit str1, mk_sexp_lit str2 =>
+            mk_sexp_lit (append str1 str2)
+        end
+    | SVar i => 
+      match (sigma i) with
+        | mk_typ _ t =>
+          match t with
+            | mk_explit_from_sexp s' => s'
+            | _ => sexp_error (* error! *)
+          end
+      end
+  end.
+
+Definition sexplit_is_equal (s1 s2: SexpLit): BexpLit :=
+  match s1, s2 with
+    | mk_sexp_lit s1', mk_sexp_lit s2' => mk_bexp_lit (andb (prefix s1' s2') (EqNat.beq_nat (length s1') (length s2')))
+    | _, _ => mk_bexp_lit false
+  end.
+
+Definition sexp_is_equal (s1 s2: Sexp) (sigma: state): BexpLit :=
+  sexplit_is_equal (eval_sexp s1 sigma) (eval_sexp s2 sigma).
+
+Definition uexp_is_equal (u1 u2: Uexp): BexpLit :=
+  match u1, u2 with
+    | Uexpid (mk_id s1), Uexpid (mk_id s2) => mk_bexp_lit (andb (prefix s1 s2) (EqNat.beq_nat (length s1) (length s2)))
+    | _, _ => mk_bexp_lit false (* TODO: Some plus statements could be equal *)
+  end.
+
 Definition bexplit_is_equal (e1 e2: BexpLit): BexpLit :=
   match e1, e2 with
     | bexp_error, _ => bexp_error
@@ -121,6 +158,8 @@ with exp_is_equal (e1 e2: Exp) (sigma: state) (n: nat): BexpLit :=
     | O, _, _ => bexp_error
     | S n', EAexp a1, EAexp a2 => aexp_is_equal a1 a2 sigma
     | S n', EBexp b1, EBexp b2 => bexp_is_equal b1 b2 sigma n'
+    | S n', ESexp s1, ESexp s2 => sexp_is_equal s1 s2 sigma
+    | S n', EUexp u1, EUexp u2 => uexp_is_equal u1 u2
     | _, _, _ => mk_bexp_lit false (* TODO? This gives false even if one argument evaluates to an error *)
   end
 
@@ -128,28 +167,6 @@ with bexp_is_equal (e1 e2: Bexp) (sigma: state) (n: nat): BexpLit :=
   match n with
     | O => bexp_error
     | S n' => bexplit_is_equal (eval_bexp e1 sigma n') (eval_bexp e2 sigma n')
-  end.
-
-Fixpoint eval_sexp (e: Sexp) (sigma: state): SexpLit :=
-  match e with
-    | SLit s => s
-    | SConcat s1 s2 =>
-      let s1eval := eval_sexp s1 sigma in
-      let s2eval := eval_sexp s2 sigma in
-        match s1eval, s2eval with
-          | sexp_error, _ => sexp_error
-          | _, sexp_error => sexp_error
-          | mk_sexp_lit str1, mk_sexp_lit str2 =>
-            mk_sexp_lit (append str1 str2)
-        end
-    | SVar i => 
-      match (sigma i) with
-        | mk_typ _ t =>
-          match t with
-            | mk_explit_from_sexp s' => s'
-            | _ => sexp_error (* error! *)
-          end
-      end
   end.
 
 Fixpoint eval_exp (e: Exp) (sigma: state) :=

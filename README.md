@@ -6,6 +6,8 @@ This interpreter covers a subset of the Kodellama language, which we designed to
 
 This readme first describes the dependencies of Kodellama and how to build and run it (Section I), and then provides a short overview of the current state of the language (Section II).
 
+- Scelerus and MattIrv
+
 ==========
 SECTION I
 ==========

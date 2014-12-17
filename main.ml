@@ -37,6 +37,7 @@ in
 		       line := !line ^ ";";	         
 	      stIn := (!stIn ^ !line ^ "\n");
 	      line := input_line stdin;
+	      while (trim !line = "") do line := input_line stdin done;
 	      if ((String.length (trim !line) >= 3) && (String.sub (trim !line) 0 3 = "end")) || ((String.length (trim !line) >= 4) && (String.sub (trim !line) 0 4 = "with")) then
 	      	    if (String.length !stIn >= 2) then
 	      	       stIn := ((String.sub !stIn 0 ((String.length !stIn) - 2)) ^ "\n")
